@@ -34,6 +34,12 @@ button:active, input:active, button:focus, input:focus {
   margin: 3.5px;
 }
 
+.admin {
+  border: 2px solid #d93025 !important;
+  border-width: 2px !important;
+  margin: 3px !important;
+}
+
 button, input {
   -webkit-appearance: button;
   -moz-appearance: button;
