@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include header.ejs %>
+  </head>
+  <body>
+    <div class="navigationBar">
+      <div class="notice">공지: ...</div>
+      <div class="buttons">
+        <% if (!user) { %>
+          <a href="/users/new"><button type="button">회원가입</button></a>
+          <a href="/login"><button type="button" class="lineBtn">로그인</button></a>
+        <% } else { %>
+          <a href="/users"><button type="button"><%= user.name %>님</button></a>
+          <a href="/logout"><button type="button">로그아웃</button></a>
+        <% } %>
+      </div>
+    </div>
+    <div width="100%" height="100px">출발까지 00:00:00</div>
+    <div width="30%" height="200px">공지<button>추가</button><button>더보기</button></div>
+    <div width="30%" height="200px">사진<button>추가</button><button>더보기</button></div>
+    <div width="30%" height="200px">게시판<button>추가</button><button>더보기</button></div>
+    <script type="text/javascript" src="/js/button.js"></script>
+  </body>
+</html>

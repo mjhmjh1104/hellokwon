@@ -1,0 +1,146 @@
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  color: #3c4043;
+  outline: none;
+}
+
+.navigationBar {
+  width: 100%;
+  height: 60px;
+}
+
+.notice {
+  font-size: 16px;
+  margin: 11px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border: 1px solid #dadce0;
+  border-radius: 50px;
+  display: inline-block;
+}
+
+.buttons {
+  float: right;
+  display: inline-block;
+}
+
+button:active, input:active, button:focus, input:focus {
+  border: 1.5px solid #4F91FE;
+  border-width: 1.5px;
+  margin: 3.5px;
+}
+
+button, input {
+  -webkit-appearance: button;
+  -moz-appearance: button;
+  appearance: button;
+  text-decoration: none;
+  background-color: white;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+  padding: 12px 20px;
+  font-size: 15px;
+  margin: 5px;
+  border: 0px solid #4F91FE;
+  overflow: hidden;
+  position: relative;
+  border-radius: 3px;
+  border-width: 0px;
+}
+
+input {
+  padding: 10px 20px;
+  border: 1px solid #dadce0;
+  border-radius: 50px;
+  width: 70%;
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
+
+.longInput {
+  margin-bottom: 25px;
+  margin-top: 25px;
+}
+
+.longInput:active, .longInput:focus {
+  margin: 4.5px;
+  margin-bottom: 24.5px;
+  margin-top: 24.5px;
+}
+
+input:active, input:focus {
+  margin: 4.5px;
+  margin-bottom: 14.5px;
+  margin-top: 14.5px;
+}
+
+button:hover, input:hover {
+  background-color: #F4F4F4;
+}
+
+button:focus, button:active {
+  background-color: #E0E0E0;
+}
+
+button .ripple {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #000;
+  transform: scale(2.5);
+  opacity: 0.16;
+  position: absolute;
+  animation: ripple 0.4s linear;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.16;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+a {
+  display: inline-block;
+}
+
+.outter {
+  display: table;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.middle {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.inner {
+  margin: auto;
+  width: 350px;
+  border: 1px solid #dadce0;
+  border-radius: 10px;
+  padding: 50px;
+  text-align: center;
+  height: auto;
+  min-height: 400px;
+}
+
+::placeholder {
+  color: #b3b3b3;
+}
+
+.lineBtn {
+  border: 1px solid #dadce0;
+}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include ../header.ejs %>
+  </head>
+  <body>
+    <div class="outter">
+      <div class="middle">
+        <div class="inner">
+          <div style="margin: 10px; margin-bottom: 30px;"><label style="font-size: 25px;">로그인</label></div>
+          <form class="loginForm" action="/login" method="post">
+            <div style="margin-bottom: 10px;"><label style="color: #d93025;"><%= loginError %></label><div/><br />
+            <input type="text" name="name" value="<%= name %>" placeholder="이름을 입력하세요" autocomplete="username" class="longInput"></input><br />
+            <input type="password" name="password" value="" placeholder="비밀번호를 입력하세요" autocomplete="current-password" class="longInput"></input><br />
+            <button class="lineBtn" type="submit">Submit</button><br />
+          </form>
+          <a href="javascript:history.back()"><button type="button">Back</button></a>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="/js/button.js"></script>
+  </body>
+</html>

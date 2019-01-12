@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include ../header.ejs %>
+  </head>
+  <body>
+    <div class="outter">
+      <div class="middle">
+        <div class="inner">
+          <div style="margin: 10px; margin-bottom: 30px;"><label style="font-size: 25px;">회원가입</label></div>
+          <form id="createUser" class="usersForm" action="/users" method="post">
+            <div style="margin-bottom: 10px;"><label style="color: #d93025;"><%= registerError %></label></div><br />
+            <input type="text" id="name" name="user[name]" value="<%= formData ? formData.name : '' %>" placeholder="실명을 입력하세요"></input>
+            <input type="password" id="password" name="user[password]" value="" placeholder="비밀번호를 입력하세요"></input>
+            <input type="password" id="passwordConfirmation" name="user[passwordConfirmation]" value="" placeholder="비밀번호를 다시 입력하세요"></input>
+            <button class="lineBtn" type="submit">Submit</button>
+          </form>
+          <a href="/"><button type="button">Back</button></a>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="/js/button.js"></script>
+  </body>
+</html>
