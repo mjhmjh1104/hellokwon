@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include ../header.ejs %>
+  </head>
+  <body>
+    <div class="outter">
+      <div class="middle">
+        <div class="inner">
+          <div style="margin: 10px; margin-bottom: 30px;"><label style="font-size: 25px;"><%= user.name %>님</label></div>
+          <form id="infoUser" name="infoUser" class="infoForm" action="/users/edit/<%= user.id %>" method="post">
+            <div style="margin-bottom: 10px;"><label style="color: #d93025;"><%= userError %></label></div><br />
+            <input type="password" id="currentPassword" name="user[currentPassword]" value="" placeholder="현재 비밀번호를 입력하세요" autocomplete="current-password"></input>
+            <input type="password" id="password" name="user[password]" value="" placeholder="새 비밀번호를 입력하세요" autocomplete="off"></input>
+            <input type="password" id="passwordConfirmation" name="user[passwordConfirmation]" value="" placeholder="새 비밀번호를 다시 입력하세요" autocomplete="off"></input>
+            <button type="submit" class="lineBtn">수정하기</button>
+          </form>
+          <a href="javascript:history.back()"><button type="button">Back</button></a>
+        </div>
+      </div>
+    </div>
+    <% include ../scripts.ejs %>
+  </body>
+</html>

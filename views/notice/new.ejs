@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include ../header.ejs %>
+  </head>
+  <body>
+    <div class="navigationBar">
+      <div class="buttons">
+        <% if (!user) { %>
+          <a href="/users/new"><button type="button">회원가입</button></a>
+          <a href="/login"><button type="button" class="lineBtn">로그인</button></a>
+        <% } else { %>
+          <a href="/users"><button type="button" class="<%= user.admin === true ? 'admin' : '' %>"><%= user.name %>님</button></a>
+          <a href="/logout"><button type="button">로그아웃</button></a>
+        <% } %>
+      </div>
+      <input type="text" name="title" value="" placeholder="제목을 입력하세요" autocomplete="title" style="margin-left: 30px; width: calc(100% - 350px);"></input><br />
+      <textarea name="body" value="" placeholder="내용을 입력하세요" autocomplete="body" style="margin-left: 30px; width: calc(100% - 100px);" contenteditable="true"></textarea><br />
+    </div>
+    <% include ../scripts.ejs %>
+  </body>
+</html>

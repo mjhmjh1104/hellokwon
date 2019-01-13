@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include header.ejs %>
+  </head>
+  <body>
+    <div class="outter">
+      <div class="middle">
+        <div class="inner">
+          <div style="margin: 10px; margin-bottom: 30px;"><label style="font-size: 25px;">Oops!</label></div>
+          <div style="height:200px;"><label style="color: #d93025;"><%= errorMessage %></label></div><br />
+          <a href="/"><button type="button">Home</button></a>
+        </div>
+      </div>
+    </div>
+    <% include scripts.ejs %>
+  </body>
+</html>

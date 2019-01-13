@@ -19,6 +19,7 @@ db.on('error', function() {
 });
 
 var bcrypt = require('bcrypt-nodejs');
+
 var userSchema = mongoose.Schema({
   name: {type: String, required: true, unique: true},
   password: {type: String, required: true},
@@ -33,6 +34,14 @@ userSchema.methods.authenticate = function(password) {
   return bcrypt.compareSync(password, this.password);
 };
 var User = mongoose.model('user', userSchema);
+
+var noticeSchema = mongoose.Schema({
+  title: {type: String},
+  body: {type: String, required: true},
+  author: {type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true},
+  createdAt: {type: Date, default: Date.now}
+});
+var Notice = mongoose.model('notice', noticeSchema);
 
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
@@ -124,14 +133,86 @@ app.post('/users', function (req, res, next) {
   } else next();
 }, checkUserRegValidation, function(req, res) {
   User.create(req.body.user, function(err, user) {
-    if (err) return res.json({success: false, message: err});
+    if (err) return res.status(520).render('error', {errorMessage: err});
     res.redirect('/login');
   });
 });
 
-/*app.get('/users', function(req, res) {
-  res.render('/users/user', {user: req.user});
-});*/
+app.get('/users', function(req, res) {
+  if (!req.user) res.redirect('/login');
+  else res.render('users/user', {user: req.user});
+});
+
+app.post('/users/auth/:to', function(req, res) {
+  if (!req.user) res.redirect('/login');
+  else if (req.body.user.password !== req.body.user.passwordConfirmation || !req.user.authenticate(req.body.user.password)) {
+    req.flash('userError', '비밀번호가 다릅니다');
+    res.redirect('back');
+  } else res.redirect('/users/' + req.params.to);
+});
+
+app.get('/users/delete', function(req, res) {
+  if (!req.user) res.redirect('/login');
+  else res.render('users/delete', {user: req.user, userError: req.flash('userError')[0]});
+});
+
+app.post('/users/delete/:id', function(req, res, next) {
+  if (!req.user) res.status(401).render('error', {errorMessage: '401 Unauthorized'});
+  else if (!req.user.authenticate(req.body.user.password)) {
+    req.flash('userError', '비밀번호가 다릅니다');
+    res.redirect('back');
+  } else if (req.user.id != req.params.id) res.status(403).render('error', {errorMessage: '403 Forbidden'});
+  else next();
+}, function(req, res) {
+  User.findOneAndRemove({_id: req.params.id, name: req.user.name}, function(err, user) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    if (!user) return res.status(400).render('error', {errorMessage: "400 Bad Request"});
+    res.redirect('/');
+  });
+});
+
+app.get('/users/edit', function(req, res) {
+  if (!req.user) res.redirect('/edit');
+  else res.render('users/edit', {user: req.user, userError: req.flash('userError')[0]});
+});
+
+app.post('/users/edit/:id', function(req, res, next) {
+  if (!req.user) res.status(401).render('error', {errorMessage: '401 Unauthorized'});
+  else if (!req.user.authenticate(req.body.user.currentPassword)) {
+    req.flash('userError', '비밀번호가 다릅니다');
+    res.redirect('back');
+  } else if (req.body.user.password !== req.body.user.passwordConfirmation) {
+    req.flash('userError', '비밀번호가 일치하지 않습니다');
+    res.redirect('back');
+  } else if (req.user.id != req.params.id) res.status(403).render('error', {errorMessage: '403 Forbidden'});
+  else next();
+}, function(req, res) {
+  var nUser = req.body.user;
+  nUser.password = bcrypt.hashSync(nUser.password);
+  User.findOneAndUpdate({_id: req.params.id, name: req.user.name}, nUser, function(err, user) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    if (!user) return res.status(400).render('error', {errorMessage: "400 Bad Request"});
+    res.redirect('/users');
+  });
+});
+
+app.get('/notice', function(req, res) {
+  Notice.find({}, function(err, notices) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    res.render('notice/posts', {user: req.user, posts: notices});
+  });
+});
+
+app.post('/notice', function(req, res) {
+  Notice.create(req.body.notice, function(err, notice) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    res.redirect('/notice');
+  });
+});
+
+app.get('/notice/new', function(req, res) {
+  res.render('notice/new', {user: req.user});
+});
 
 app.listen(process.env.PORT || 3000, function() {
   console.log('Server is now ON!');
@@ -150,7 +231,7 @@ function checkUserRegValidation(req, res, next) {
         callback(null, isValid);
       });
     }], function(err, isValid) {
-      if (err) return res.json({success: 'false', message: err});
+      if (err) return res.status(520).render('error', {errorMessage: err});
       if (isValid) return next();
       else {
         req.flash('formData', req.body.user);
@@ -160,5 +241,5 @@ function checkUserRegValidation(req, res, next) {
 };
 
 app.get('*', function(req, res) {
-  res.render('404');
+  res.status(404).render('error', {errorMessage: '404 Not Found'});
 });

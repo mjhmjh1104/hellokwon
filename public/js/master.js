@@ -2,6 +2,10 @@ Array.prototype.forEach.call(
   document.getElementsByTagName('button'), function(item) {
   item.addEventListener('mousedown', createRipple);
 });
+Array.prototype.forEach.call(
+  document.getElementsByTagName('textarea'), function(item) {
+  item.addEventListener('keyup', autoGrow);
+});
 
 function createRipple(e) {
   var circle = document.createElement('div');
@@ -14,4 +18,10 @@ function createRipple(e) {
 
   circle.classList.add('ripple');
   this.appendChild(circle);
+}
+
+function autoGrow(oField) {
+  if (oField.scrollHeight > oField.clientHeight) {
+    oField.style.height = oField.scrollHeight + "px";
+  }
 }
