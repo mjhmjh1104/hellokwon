@@ -5,20 +5,27 @@
   </head>
   <body>
     <div class="navigationBar">
-      <div class="notice">공지: ...</div>
-      <div class="buttons">
-        <% if (!user) { %>
-          <a href="/users/new"><button type="button">회원가입</button></a>
-          <a href="/login"><button type="button" class="lineBtn">로그인</button></a>
-        <% } else { %>
-          <a href="/users"><button type="button" class="<%= user.admin === true ? 'admin' : '' %>"><%= user.name %>님</button></a>
-          <a href="/logout"><button type="button">로그아웃</button></a>
-        <% } %>
-        <% Array.prototype.forEach.call(posts, function(item) { %>
-          <div><%= item %></div>
-        <% }); %>
-      </div>
+      <% include ../head.ejs %>
     </div>
+    <div class="buttons" style="padding-right: 10px;">
+      <% if (user && user.admin === true) { %>
+        <a href="/notice/new" style="margin-right: 10px; float: right;"><button type="button" class="lineBtn">Write</button></a>
+      <% } %>
+      <a href="javascript:history.back()"><button type="button">Back</button></a>
+    </div>
+    <% Array.prototype.forEach.call(posts, function(item) { %>
+      <a href="/notice/<%= item._id %>" style="width: calc(100% - 22px);">
+        <button type="button" class="noticeBlock" style="display: block; width: 100%;">
+          <div class="upper">
+            <label class="title"><%= item.title %></label>
+            <label class="author" style="<%= item.author.admin === true ? 'font-weight: bold; ' : '' %>height: 20px; overflow: hidden; display: inline-block;"><%= item.author.name %></label><br />
+          </div>
+          <div class="bottom" style="margin-top: 10px; width: 100%; text-align: left;">
+            <label class="body" style="height: 20px; overflow: hidden; display: inline-block;"><%= item.body.substr(0, 60) + (item.body.length < 60 ? '' : '...') %></label>
+          </div>
+        </button>
+      </a>
+    <% }); %>
     <% include ../scripts.ejs %>
   </body>
 </html>

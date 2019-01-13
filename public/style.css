@@ -4,6 +4,8 @@
   font-family: 'Roboto', sans-serif;
   color: #3c4043;
   outline: none;
+  text-decoration: none;
+  line-break: break-all;
 }
 
 .navigationBar {
@@ -19,7 +21,19 @@
   padding-top: 10px;
   padding-bottom: 10px;
   border: 1px solid #dadce0;
-  border-radius: 50px;
+  border-radius: 19.2px;
+}
+
+.noticeBlock {
+  font-size: 16px;
+  margin-top: 11px;
+  margin-left: 11px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border: 1px solid #dadce0;
+  border-radius: 19.2px;
   display: inline-block;
 }
 
@@ -61,15 +75,13 @@ button, input, textarea {
 input, textarea {
   padding: 10px 20px;
   border: 1px solid #dadce0;
-  border-radius: 50px;
+  border-radius: 19.2px;
   width: 70%;
   margin-bottom: 15px;
   margin-top: 15px;
 }
 
 textarea {
-  min-height: 100px;
-  height: auto;
   resize: none;
 }
 
@@ -122,6 +134,8 @@ button .ripple {
 
 a {
   display: inline-block;
+  margin: 0;
+  padding: 0;
 }
 
 .outter {
@@ -171,4 +185,31 @@ a {
   padding-left: 20px;
   margin-top: 20px;
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.title {
+  font-weight: bold;
+  float: left;
+}
+
+.body {
+  width: 100%;
+}
+
+.author {
+  float: right;
+}
+
+.list {
+  width: calc(30% - 40px);
+  margin: 0 11.2px;
+  padding: 20px;
+  padding-top: 10px;
+  border: 1px solid #dadce0;
+  border-radius: 11.2px;
+  float: left;
+}
+
+.mainItem {
+  width: 100%;
 }

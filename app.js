@@ -82,7 +82,11 @@ passport.use('local-login', new LocalStrategy({
 }));
 
 app.get('/', function(req, res) {
-  res.render('main', {user: req.user});
+  Notice.find({}, function(err) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+  }).populate('author').sort('-createdAt').exec(function(err, tNotice) {
+    res.render('main', {user: req.user, notice: tNotice[0], notices: tNotice.slice(0, 4)});
+  });
 });
 
 app.get('/login', function(req, res) {
@@ -100,14 +104,22 @@ app.post('/login', function(req, res, next) {
     res.redirect('/login');
   } else next();
 }, passport.authenticate('local-login', {
-  successRedirect: '/',
+  successRedirect: '/loginDone',
   failureRedirect: '/login',
   failureFlash: true
 }));
 
+app.get('/loginDone', function(req, res) {
+  var destination = req.session.returnTo || '/';
+  delete req.session.returnTo;
+  res.redirect(destination);
+});
+
 app.get('/logout', function(req, res) {
+  var destination = req.session.returnTo || '/';
+  delete req.session.returnTo;
   req.logout();
-  res.redirect('/');
+  res.redirect(destination);
 });
 
 app.get('/users/new', function(req, res) {
@@ -138,22 +150,19 @@ app.post('/users', function (req, res, next) {
   });
 });
 
-app.get('/users', function(req, res) {
-  if (!req.user) res.redirect('/login');
-  else res.render('users/user', {user: req.user});
+app.get('/users', isLoggedin, function(req, res) {
+  res.render('users/user', {user: req.user});
 });
 
-app.post('/users/auth/:to', function(req, res) {
-  if (!req.user) res.redirect('/login');
-  else if (req.body.user.password !== req.body.user.passwordConfirmation || !req.user.authenticate(req.body.user.password)) {
+app.post('/users/auth/:to', isLoggedin, function(req, res) {
+  if (req.body.user.password !== req.body.user.passwordConfirmation || !req.user.authenticate(req.body.user.password)) {
     req.flash('userError', '비밀번호가 다릅니다');
     res.redirect('back');
   } else res.redirect('/users/' + req.params.to);
 });
 
-app.get('/users/delete', function(req, res) {
-  if (!req.user) res.redirect('/login');
-  else res.render('users/delete', {user: req.user, userError: req.flash('userError')[0]});
+app.get('/users/delete', isLoggedin, function(req, res) {
+  res.render('users/delete', {user: req.user, userError: req.flash('userError')[0]});
 });
 
 app.post('/users/delete/:id', function(req, res, next) {
@@ -171,9 +180,8 @@ app.post('/users/delete/:id', function(req, res, next) {
   });
 });
 
-app.get('/users/edit', function(req, res) {
-  if (!req.user) res.redirect('/edit');
-  else res.render('users/edit', {user: req.user, userError: req.flash('userError')[0]});
+app.get('/users/edit', isLoggedin, function(req, res) {
+  res.render('users/edit', {user: req.user, userError: req.flash('userError')[0]});
 });
 
 app.post('/users/edit/:id', function(req, res, next) {
@@ -197,21 +205,50 @@ app.post('/users/edit/:id', function(req, res, next) {
 });
 
 app.get('/notice', function(req, res) {
-  Notice.find({}, function(err, notices) {
+  Notice.find({}, function(err) {
     if (err) return res.status(520).render('error', {errorMessage: err});
-    res.render('notice/posts', {user: req.user, posts: notices});
+  }).populate('author').sort('-createdAt').exec(function(err, notices) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    res.render('notice/posts', {user: req.user, posts: notices, notice: notices[0]});
   });
 });
 
 app.post('/notice', function(req, res) {
-  Notice.create(req.body.notice, function(err, notice) {
-    if (err) return res.status(520).render('error', {errorMessage: err});
-    res.redirect('/notice');
-  });
+  if (!req.user) {
+    req.session.returnTo = '/notice/new';
+    req.session.previousBody = req.body.notice.body;
+    res.redirect('/login');
+  } else {
+    var nNotice = req.body.notice;
+    nNotice.author = req.user._id;
+    Notice.create(nNotice, function(err, notice) {
+      if (err) return res.status(520).render('error', {errorMessage: err});
+      res.redirect('/notice');
+    });
+  }
 });
 
-app.get('/notice/new', function(req, res) {
-  res.render('notice/new', {user: req.user});
+app.get('/notice/new', isLoggedin, function(req, res) {
+  var formData = '';
+  if (req.session.previousBody) {
+    formData = req.session.previousBody;
+    delete req.session.previousBody;
+  }
+  res.render('notice/new', {user: req.user, formData: formData});
+});
+
+app.get('/notice/:id', function(req, res) {
+  Notice.find({_id: req.params.id}, function(err) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+  }).populate('author').exec(function(err, notice) {
+    Notice.find({}, function(err) {
+      if (err) return res.status(520).render('error', {errorMessage: err});
+    }).populate('author').sort('-createdAt').exec(function(err, tNotice) {
+      if (err) return res.status(520).render('error', {errorMessage: err});
+      else if (!notice) return res.status(400).render('error', {errorMessage: '400 Bad Request\n게시물이 삭제된 것 같습니다.'});
+      else res.render('notice/post', {user: req.user, post: notice[0], notice: tNotice[0]});
+    });
+  });
 });
 
 app.listen(process.env.PORT || 3000, function() {
@@ -239,6 +276,13 @@ function checkUserRegValidation(req, res, next) {
       }
     });
 };
+
+function isLoggedin(req, res, next) {
+  if (!req.user) {
+    req.session.returnTo = req.originalUrl;
+    res.redirect('/login');
+  } else next();
+}
 
 app.get('*', function(req, res) {
   res.status(404).render('error', {errorMessage: '404 Not Found'});

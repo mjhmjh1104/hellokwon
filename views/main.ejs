@@ -5,29 +5,43 @@
   </head>
   <body>
     <div class="navigationBar">
-      <div class="notice">공지: ...</div>
-      <div class="buttons">
-        <% if (!user) { %>
-          <a href="/users/new"><button type="button">회원가입</button></a>
-          <a href="/login"><button type="button" class="lineBtn">로그인</button></a>
-        <% } else { %>
-          <a href="/users"><button type="button" class="<%= user.admin === true ? 'admin' : '' %>"><%= user.name %>님</button></a>
-          <a href="/logout"><button type="button">로그아웃</button></a>
-        <% } %>
-      </div>
+      <% include head.ejs %>
     </div>
-    <div class="board" style="width: calc(100% - 40); height: 500px; margin: 20px;">
-      <div class="outter" style="width: 100%; height: 100%; position: static; background-color: black;">
-        <div class="middle">
-          <div class="nInner">
-            <div width="100%" height="100px" style="font-size: 50px;"><label style="color: white;">일정 시작까지 </label><br /><div class="time" id="countDown" style="color: white;">00:00:00</div></div>
+    <div class="container">
+      <div class="board" style="width: calc(100% - 40); height: 500px; margin: 20px; margin-bottom: 50px;">
+        <div class="outter" style="width: 100%; height: 100%; position: static; background-color: black;">
+          <div class="middle">
+            <div class="nInner">
+              <div width="100%" height="100px" style="font-size: 50px;"><label style="color: white;">일정 시작까지 </label><br /><div class="time" id="countDown" style="color: white;">00:00:00</div></div>
+            </div>
           </div>
         </div>
       </div>
+      <div class="container" style="width: calc(100% - 100px); margin: 30px 50px; clear: both; display: inline-block;">
+        <div class="list">
+          <div class="navigation" style="display: block; width: 100%;">
+            <div class="upper" style="display: inline-block; float: left; margin: 15px;">
+              <label style="font-weight: bold;">공지</label><br />
+            </div>
+            <div class="buttons">
+              <a href="/notice/new"><button type="button">Write</button></a>
+              <a href="/notice"><button type="button" class="lineBtn">More</button></a>
+            </div>
+          </div>
+          <div class="realList" style="display: block; width: 100%;">
+            <% Array.prototype.forEach.call(notices, function(item) { %>
+              <a href="/notice/<%= item._id %>" style="width: calc(100% - 10px);">
+                <button class="mainItem" style="white-space: nowrap; text-align: left;" type="button">
+                  <label style="font-weight: bold;"><%= item.title.substr(0, 15) + (item.title.length > 15 ? '...' : '') %></label>
+                </button>
+              </a>
+            <% }); %>
+          </div>
+        </div>
+        <div class="list">사진<button>추가</button><button>더보기</button></div>
+        <div class="list">게시판<button>추가</button><button>더보기</button></div>
+      </div>
     </div>
-    <div width="30%" height="200px">공지<button>추가</button><button>더보기</button></div>
-    <div width="30%" height="200px">사진<button>추가</button><button>더보기</button></div>
-    <div width="30%" height="200px">게시판<button>추가</button><button>더보기</button></div>
     <script type="text/javascript" src="/js/main.js"></script>
     <% include scripts.ejs %>
   </body>

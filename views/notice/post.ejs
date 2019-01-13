@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include ../header.ejs %>
+  </head>
+  <body>
+    <div class="navigationBar">
+      <% include ../head.ejs %>
+    </div>
+    <div style="margin: 10px; margin-bottom: 30px; text-align: center;"><label style="font-size: 25px;"><%= post.title %></label></div>
+    <div style="<%= post.author.admin === true ? 'font-weight: bold; ' : '' %>text-align: right; margin-right: 20px;"><label><%= post.createdAt.getFullYear() %>-<%= post.createdAt.getMonth() + 1 %>-<%= post.createdAt.getDate() %>, <%= post.author.name %></label></div>
+    <div style="margin: 10px; white-space: pre-wrap;"><% var e = post.body, user = post.author; %><% include ../body.ejs %></div>
+    <a href="javascript:history.back()" style="margin-top: 50px; float: right;"><button type="button">Back</button></a>
+    <% include ../scripts.ejs %>
+  </body>
+</html>

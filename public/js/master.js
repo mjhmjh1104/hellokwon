@@ -20,8 +20,6 @@ function createRipple(e) {
   this.appendChild(circle);
 }
 
-function autoGrow(oField) {
-  if (oField.scrollHeight > oField.clientHeight) {
-    oField.style.height = oField.scrollHeight + "px";
-  }
+function autoGrow(e) {
+  if (this.scrollHeight > this.clientHeight) this.style.height = this.scrollHeight + "px";
 }

@@ -1,0 +1,19 @@
+<div class="container" style="height: 65.6px;">
+  <% if (notice) { %>
+    <a href="/notice/<%= notice._id %>">
+      <button class="notice" type="button" style="width: calc(100% - 200px);">
+        <label style="font-weight: bold; margin-right: 50px; float: left;"><%= notice.title.substr(0, 10) + (notice.title.length > 10 ? '...' : '') %></label>
+        <label style="width: calc(100% - 200px); display: inline-block; overflow: hidden; float: right; height: 20px;"><%= notice.body.substr(0, 60) %></label>
+      </button>
+    </a>
+  <% } %>
+  <div class="buttons">
+    <% if (!user) { %>
+      <a href="/users/new"><button type="button">회원가입</button></a>
+      <a href="/login"><button type="button" class="lineBtn">로그인</button></a>
+    <% } else { %>
+      <a href="/users"><button type="button" class="<%= user.admin === true ? 'admin' : '' %>"><%= user.name %>님</button></a>
+      <a href="/logout"><button type="button">로그아웃</button></a>
+    <% } %>
+  </div>
+</div>

@@ -7,7 +7,8 @@
     <div class="outter">
       <div class="middle">
         <div class="inner">
-          <div style="margin: 10px; margin-bottom: 250px;"><label style="font-size: 25px;"><%= user.name %>님</label></div>
+          <div style="margin: 10px; margin-bottom: 40px;"><label style="font-size: 25px;"><%= user.name %>님</label></div>
+          <div style="margin-bottom: 10px; height: 200px;"><label style="color: #d93025;"><%= user.admin === true ? 'admin' : '' %></label></div><br />
           <a href="/users/edit"><button class="lineBtn" type="button">수정하기</button></a>
           <a href="/users/delete"><button type="button" style="background-color: #D93025; color: white">탈퇴하기</button></a><br />
           <a href="javascript:history.back()"><button type="button">Back</button></a>

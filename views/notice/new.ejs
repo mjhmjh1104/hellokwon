@@ -14,8 +14,11 @@
           <a href="/logout"><button type="button">로그아웃</button></a>
         <% } %>
       </div>
-      <input type="text" name="title" value="" placeholder="제목을 입력하세요" autocomplete="title" style="margin-left: 30px; width: calc(100% - 350px);"></input><br />
-      <textarea name="body" value="" placeholder="내용을 입력하세요" autocomplete="body" style="margin-left: 30px; width: calc(100% - 100px);" contenteditable="true"></textarea><br />
+      <form id="createNotice" class="noticeForm" action="/notice" method="post">
+        <input type="text" name="notice[title]" value="" placeholder="제목을 입력하세요" autocomplete="title" style="margin-left: 30px; width: calc(100% - 350px);"></input><br />
+        <textarea type="textarea" name="notice[body]" placeholder="내용을 입력하세요" autocomplete="body" style="margin-left: 30px; width: calc(100% - 100px);"><%= formData %></textarea><br />
+        <button type="submit" class="lineBtn" style="float: right; margin-right: 30px;">Submit</button><a href="javascript:history.back()" style="float: right; margin-right: 10px;"><button type="button">Back</button></a>
+      </form>
     </div>
     <% include ../scripts.ejs %>
   </body>
