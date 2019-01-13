@@ -8,7 +8,7 @@
       <% include head.ejs %>
     </div>
     <div class="container">
-      <div class="board" style="width: calc(100% - 40); height: 500px; margin: 20px; margin-bottom: 50px;">
+      <div class="board" style="width: calc(100% - 40); height: 500px; margin: 20px; margin-bottom: 50px; display: block;">
         <div class="outter" style="width: 100%; height: 100%; position: static; background-color: black;">
           <div class="middle">
             <div class="nInner">
@@ -24,7 +24,9 @@
               <label style="font-weight: bold;">공지</label><br />
             </div>
             <div class="buttons">
-              <a href="/notice/new"><button type="button">Write</button></a>
+              <% if (user && user.admin === true) { %>
+                <a href="/notice/new"><button type="button">Write</button></a>
+              <% } %>
               <a href="/notice"><button type="button" class="lineBtn">More</button></a>
             </div>
           </div>
@@ -42,7 +44,7 @@
         <div class="list">게시판<button>추가</button><button>더보기</button></div>
       </div>
     </div>
-    <script type="text/javascript" src="/js/main.js"></script>
     <% include scripts.ejs %>
+    <script type="text/javascript" src="/js/main.js"></script>
   </body>
 </html>

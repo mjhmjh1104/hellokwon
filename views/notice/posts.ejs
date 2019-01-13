@@ -8,6 +8,7 @@
       <% include ../head.ejs %>
     </div>
     <div class="buttons" style="padding-right: 10px;">
+      <a href="/"><button type="button">Home</button></a>
       <% if (user && user.admin === true) { %>
         <a href="/notice/new" style="margin-right: 10px; float: right;"><button type="button" class="lineBtn">Write</button></a>
       <% } %>

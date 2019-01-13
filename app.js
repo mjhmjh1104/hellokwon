@@ -218,7 +218,8 @@ app.post('/notice', function(req, res) {
     req.session.returnTo = '/notice/new';
     req.session.previousBody = req.body.notice.body;
     res.redirect('/login');
-  } else {
+  } else if (req.user.admin !== true) res.render('error', {errorMessage: '403 Forbidden'});
+  else {
     var nNotice = req.body.notice;
     nNotice.author = req.user._id;
     Notice.create(nNotice, function(err, notice) {
@@ -228,7 +229,7 @@ app.post('/notice', function(req, res) {
   }
 });
 
-app.get('/notice/new', isLoggedin, function(req, res) {
+app.get('/notice/new', isLoggedin, isAdmin, function(req, res) {
   var formData = '';
   if (req.session.previousBody) {
     formData = req.session.previousBody;
@@ -238,16 +239,40 @@ app.get('/notice/new', isLoggedin, function(req, res) {
 });
 
 app.get('/notice/:id', function(req, res) {
-  Notice.find({_id: req.params.id}, function(err) {
+  Notice.findOne({_id: req.params.id}, function(err) {
     if (err) return res.status(520).render('error', {errorMessage: err});
   }).populate('author').exec(function(err, notice) {
-    Notice.find({}, function(err) {
+    Notice.findOne({}, function(err) {
       if (err) return res.status(520).render('error', {errorMessage: err});
     }).populate('author').sort('-createdAt').exec(function(err, tNotice) {
       if (err) return res.status(520).render('error', {errorMessage: err});
       else if (!notice) return res.status(400).render('error', {errorMessage: '400 Bad Request\n게시물이 삭제된 것 같습니다.'});
-      else res.render('notice/post', {user: req.user, post: notice[0], notice: tNotice[0]});
+      else res.render('notice/post', {user: req.user, post: notice, notice: tNotice});
     });
+  });
+});
+
+app.get('/notice/:id/delete', isLoggedin, function(req, res) {
+  Notice.findOneAndRemove(req.user.admin === true ? {_id: req.params.id} : {_id: req.params.id, author: req.user._id}, function(err, notice) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    else if (!notice) return res.render('error', {errorMessage: '400 Bad Request'});
+    else res.redirect('/notice');
+  });
+});
+
+app.post('/notice/:id', isLoggedin, function(req, res) {
+  Notice.findOneAndUpdate(req.user.admin === true ? {_id: req.params.id} : {_id: req.params.id, author: req.user._id}, req.body.notice, function(err, notice) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    else if (!notice) return res.render('error', {errorMessage: '400 Bad Request'});
+    else res.redirect('/notice');
+  });
+})
+
+app.get('/notice/:id/edit', isLoggedin, function(req, res) {
+  Notice.findOne({_id: req.params.id}, function(err, notice) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    else if (notice.author._id.toString() != req.user._id.toString() && req.user.admin !== true) return res.status(403).render('error', {errorMessage: '403 Forbidden'});
+    else res.render('notice/edit', {user: req.user, post: notice});
   });
 });
 
@@ -282,6 +307,11 @@ function isLoggedin(req, res, next) {
     req.session.returnTo = req.originalUrl;
     res.redirect('/login');
   } else next();
+}
+
+function isAdmin(req, res, next) {
+  if (!req.user || req.user.admin !== true) res.render('error', {errorMessage: '403 Forbidden'});
+  else next();
 }
 
 app.get('*', function(req, res) {
