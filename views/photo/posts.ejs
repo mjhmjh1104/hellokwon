@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include ../header.ejs %>
+  </head>
+  <body>
+    <div class="navigationBar">
+      <% include ../head.ejs %>
+    </div>
+    <div class="buttons" style="padding-right: 10px;">
+      <a href="/"><button type="button">Home</button></a>
+      <% if (user) { %>
+        <a href="/photo/new" style="margin-right: 10px; float: right;"><button type="button" class="lineBtn">Upload</button></a>
+      <% } %>
+      <a href="javascript:history.back()"><button type="button">Back</button></a>
+    </div>
+    <div style="display: block; width: 100%; height: 60px;"></div>
+    <% Array.prototype.forEach.call(imgs, function(item) { %>
+      <a href="/photo/<%= item._id %>" style="display: inline;">
+        <img src="/photo/<%= item._id %>/raw" style="width: 31%; margin: 1%;"></img>
+      </a>
+    <% }); %>
+    <% include ../scripts.ejs %>
+  </body>
+</html>

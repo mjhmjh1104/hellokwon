@@ -107,6 +107,19 @@ button:hover, input:hover {
   background-color: #F4F4F4;
 }
 
+img {
+  -webkit-filter: brightness(100%);
+  -moz-filter: brightness(100%);
+  filter: brightness(100%);
+  -webkit-transition-duration: 0.4s;
+}
+
+img:hover {
+  -webkit-filter: brightness(70%);
+  -moz-filter: brightness(70%);
+  filter: brightness(70%);
+}
+
 button:focus, button:active {
   background-color: #E0E0E0;
 }

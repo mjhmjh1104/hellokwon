@@ -3,7 +3,6 @@ window.addEventListener('load', uploadInit);
 var fileTarget = document.getElementsByClassName('fileInput')[0];
 var fileDest = document.getElementsByClassName('fileName')[0];
 var fileButton = document.getElementsByClassName('fileButton')[0];
-var filePreview = document.getElementsByClassName('filePreview')[0];
 var fileBox = document.getElementsByClassName('fileBox')[0];
 
 function uploadInit() {

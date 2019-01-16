@@ -9,9 +9,9 @@ var async       = require('async');
 var bodyParser  = require('body-parser');
 var http        = require('http').Server(app);
 var io          = require('socket.io')(http);
-var grid        = require('gridfs-stream');
 var fs          = require('fs');
 var multer      = require('multer');
+var sharp       = require('sharp');
 
 mongoose.connect('mongodb://' + process.env.MONGO_DB + "@ds155714.mlab.com:55714/hellokwon", {useNewUrlParser: true});
 
@@ -51,9 +51,12 @@ var Notice = mongoose.model('notice', noticeSchema);
 
 var imageSchema = mongoose.Schema({
   img: {
-    data: Buffer,
-    contentType: String
-  }
+    data: {type: Buffer, required: true},
+    contentType: {type: String, default: 'image/png'}
+  },
+  author: {type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true},
+  createdAt: {type: Date, default: Date.now},
+  views: {type: Number, default: 0}
 });
 var Image = mongoose.model('image', imageSchema);
 
@@ -69,11 +72,9 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use((upload = multer({ dest: './uploads', rename: function(fieldname, filename) {
+var upload = multer({ dest: './uploads', rename: function(fieldname, filename) {
   return filename.replace(/\W+/g, '-').toLowerCase() + Date.now();
-}})).any());
-
-var upload;
+}});
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
@@ -108,7 +109,11 @@ app.get('/', function(req, res) {
   Notice.find({}, function(err) {
     if (err) return res.status(520).render('error', {errorMessage: err});
   }).populate('author').sort('-createdAt').exec(function(err, tNotice) {
-    res.render('main', {user: req.user, notice: tNotice[0], notices: tNotice.slice(0, 4), posts: []});
+    Image.find({}, function(err) {
+      if (err) return res.status(520).render('error', {errorMessage: err});
+    }).populate('author').sort('-createdAt').exec(function(err, imgs) {
+      res.render('main', {user: req.user, notice: tNotice[0], notices: tNotice.slice(0, 4), imgs: imgs.slice(0, 4)});
+    });
   });
 });
 
@@ -335,11 +340,12 @@ app.get('/notice/:id/edit', isLoggedin, function(req, res) {
 });
 
 app.get('/photo', function(req, res) {
-  Notice.find({}, function(err) {
+  req.session.returnTo = req.originalUrl;
+  Image.find({}, function(err) {
     if (err) return res.status(520).render('error', {errorMessage: err});
-  }).populate('author').sort('-createdAt').exec(function(err, notices) {
+  }).populate('author').sort('-createdAt').exec(function(err, images) {
     if (err) return res.status(520).render('error', {errorMessage: err});
-    res.render('photo/posts', {user: req.user, post: notices[0]})
+    res.render('photo/posts', {user: req.user, imgs: images, notice: null});
   });
 });
 
@@ -350,20 +356,43 @@ app.get('/photo/new', isLoggedin, function(req, res) {
 
 app.post('/photo', isLoggedin, upload.single('fileInput'), function(req, res) {
   var newItem = new Image();
-  console.log(req.files);
-  newItem.img.data = fs.readFileSync(req.files[0].path);
-  newItem.img.contentType = 'image/png';
-  newItem.save();
-  res.redirect('/photo');
+  sharp(req.file.path).resize(1024, 1024, { widthoutEnlargement: true, fit: 'inside'}).toFile(req.file.path + 'edited', function(err) {
+    if (err) return console.log('IMG ERROR: ', tErr);
+    newItem.img.data = fs.readFileSync(req.file.path + 'edited');
+    newItem.img.contentType = req.file.mimetype;
+    newItem.author = req.user._id;
+    newItem.save();
+    res.redirect('/photo');
+  });
 });
 
 app.get('/photo/:id', function(req, res) {
+  Image.findOneAndUpdate({_id: req.params.id}, {$inc: {views: 1}}, function(err) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+  });
+  Image.findOne({_id: req.params.id}, function(err) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+  }).populate('author').sort('-createdAt').exec(function(err, img) {
+    if (!img) return res.status(400).render('error', {errorMessage: '400 Bad Request'});
+    res.render('photo/post', {user: req.user, img: img, notice: null});
+  });
+});
+
+app.get('/photo/:id/raw', function(req, res) {
   Image.findOne({_id: req.params.id}, function(err, image) {
-    if (err) res.status(520).render('error', {errorMessage: err});
-    if (!image) res.status(400).render('error', {errorMessage: '400 Bad Request'});
-    res.render('photo/post', {contentType: image.img.contentType, base64: new Buffer(image.img.data).toString('base64')});
-  })
-})
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    if (!image) return res.status(400).render('error', {errorMessage: '400 Bad Request'});
+    res.header('Content-Type', image.img.contentType).send(image.img.data);
+  });
+});
+
+app.get('/photo/:id/delete', isLoggedin, function(req, res) {
+  Image.findOneAndRemove(req.user.admin === true ? {_id: req.params.id} : {_id: req.params.id, author: req.user._id}, function(err, image) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    else if (!image) return res.render('error', {errorMessage: '400 Bad Request'});
+    else res.redirect('/photo');
+  });
+});
 
 http.listen(process.env.PORT || 3000, function() {
   console.log('Server is now ON!');

@@ -8,12 +8,12 @@
       <% include ../head.ejs %>
     </div>
     <div style="margin: 10px; margin-bottom: 30px; text-align: center;"><label style="font-size: 25px;"><%= post.title %></label></div>
-    <div style="<%= post.author.admin === true ? 'font-weight: bold; ' : '' %>text-align: right; float: right;">
+    <div style="text-align: right; float: right;">
       <div class="property">
         <button type="button" class="icon"><i class="fas fa-calendar-day"></i></button>
         <label><%= post.createdAt.getFullYear() %>-<%= post.createdAt.getMonth() + 1 < 10 ? '0' + (post.createdAt.getMonth() + 1) : (post.createdAt.getMonth() + 1) %>-<%= post.createdAt.getDate() < 10 ? '0' + post.createdAt.getDate() : post.createdAt.getDate() %> <%= post.createdAt.getHours() < 10 ? '0' + post.createdAt.getHours() : post.createdAt.getHours() %>:<%= post.createdAt.getMinutes() < 10 ? '0' + post.createdAt.getMinutes() : post.createdAt.getMinutes()%></label>
       </div>
-      <div class="property">
+      <div class="property" style="<%= post.author.admin === true ? 'font-weight: bold; ' : '' %>">
         <button type="button" class="icon"><i class="fas fa-pen"></i></button>
         <a href="/users/<%= post.author._id %>"><button type="button" style="font-weight: bold; display: inline-block; margin: 0; padding: 10px 15px;"><%= post.author.name %></button></a>
       </div>
