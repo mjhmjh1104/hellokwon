@@ -3,19 +3,34 @@
   <head>
     <% include ../header.ejs %>
   </head>
-  <body>
+  <body onload="">
     <div class="navigationBar">
       <% include ../head.ejs %>
     </div>
     <div style="margin: 10px; margin-bottom: 30px; text-align: center;"><label style="font-size: 25px;"><%= post.title %></label></div>
-    <div style="<%= post.author.admin === true ? 'font-weight: bold; ' : '' %>text-align: right; margin-right: 20px;"><label><%= post.createdAt.getFullYear() %>-<%= post.createdAt.getMonth() + 1 < 10 ? '0' + (post.createdAt.getMonth() + 1) : (post.createdAt.getMonth() + 1) %>-<%= post.createdAt.getDate() < 10 ? '0' + post.createdAt.getDate() : post.createdAt.getDate() %> <%= post.createdAt.getHours() < 10 ? '0' + post.createdAt.getHours() : post.createdAt.getHours() %>:<%= post.createdAt.getMinutes() < 10 ? '0' + post.createdAt.getMinutes() : post.createdAt.getMinutes()%>, <%= post.author.name %></label></div>
+    <div style="<%= post.author.admin === true ? 'font-weight: bold; ' : '' %>text-align: right; float: right;">
+      <div class="property">
+        <button type="button" class="icon"><i class="fas fa-calendar-day"></i></button>
+        <label><%= post.createdAt.getFullYear() %>-<%= post.createdAt.getMonth() + 1 < 10 ? '0' + (post.createdAt.getMonth() + 1) : (post.createdAt.getMonth() + 1) %>-<%= post.createdAt.getDate() < 10 ? '0' + post.createdAt.getDate() : post.createdAt.getDate() %> <%= post.createdAt.getHours() < 10 ? '0' + post.createdAt.getHours() : post.createdAt.getHours() %>:<%= post.createdAt.getMinutes() < 10 ? '0' + post.createdAt.getMinutes() : post.createdAt.getMinutes()%></label>
+      </div>
+      <div class="property">
+        <button type="button" class="icon"><i class="fas fa-pen"></i></button>
+        <a href="/users/<%= post.author._id %>"><button type="button" style="font-weight: bold; display: inline-block; margin: 0; padding: 10px 15px;"><%= post.author.name %></button></a>
+      </div>
+      <div class="property">
+        <button type="button" class="icon"><i class="fas fa-eye"></i></button>
+        <label><%= post.views %></label>
+      </div>
+    </div>
     <div style="margin: 10px; white-space: pre-wrap;"><% var e = post.body, u = post.author; %><% include ../body.ejs %></div>
-    <a href="javascript:history.back()" style="margin-top: 50px; float: right;"><button type="button">Back</button></a>
-    <a href="/notice" style="margin-top: 50px; float: right;"><button type="button" class="lineBtn">목록</button></a>
-    <% if (user && (post.author._id.toString() == user._id.toString() || user.admin === true)) { %>
-      <a href="/notice/<%= post._id %>/delete" style="margin-top: 50px; float: right;"><button type="button" style="background-color: #d93025; color: white;">삭제</button></a>
-      <a href="/notice/<%= post._id %>/edit" style="margin-top: 50px; float: right;"><button type="button">수정</button></a>
-    <% } %>
+    <div class="buttons">
+      <a href="javascript:history.back()" style="margin-top: 50px; float: right;"><button type="button">Back</button></a>
+      <a href="/notice" style="margin-top: 50px; float: right;"><button type="button" class="lineBtn">목록</button></a>
+      <% if (user && (post.author._id.toString() == user._id.toString() || user.admin === true)) { %>
+        <a href="/notice/<%= post._id %>/delete" style="margin-top: 50px; float: right;"><button type="button" style="background-color: #d93025; color: white;">삭제</button></a>
+        <a href="/notice/<%= post._id %>/edit" style="margin-top: 50px; float: right;"><button type="button">수정</button></a>
+      <% } %>
+    </div>
     <% include ../scripts.ejs %>
   </body>
 </html>

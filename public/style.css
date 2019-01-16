@@ -70,6 +70,7 @@ button, input, textarea {
   position: relative;
   border-radius: 3px;
   border-width: 0px;
+  cursor: pointer;
 }
 
 input, textarea {
@@ -198,6 +199,10 @@ a {
 
 .author {
   float: right;
+  height: 20px;
+  overflow: hidden;
+  display: inline-block;
+  margin-left: 5px;
 }
 
 .list {
@@ -212,4 +217,27 @@ a {
 
 .mainItem {
   width: 100%;
+}
+
+.property {
+  text-align: right;
+  float: right;
+  margin-right: 20px;
+}
+
+.icon, .icon:active, .icon:focus {
+  border: none;
+  background-color: white;
+  margin: 0;
+  border-radius: 50px;
+}
+
+.uploadBox {
+  border: 1px solid #dadce0;
+  height: 300px;
+  border-radius: 11.2px;
+}
+
+.fileBox input[type="file"] { /* 파일 필드 숨기기 */
+  display: none;
 }

@@ -1,3 +1,16 @@
+window.addEventListener('load', ready);
+
+function ready() {
+  if (/Trident|MSIE/.test(navigator.userAgent)) {
+    alert('IE 쓰지 마세요.');
+    window.close();
+    document.getElementsByTagName('html')[0].removeChild(document.getElementsByTagName('head')[0]);
+    document.getElementsByTagName('html')[0].removeChild(document.getElementsByTagName('body')[0]);
+  }
+}
+
+var socket = io();
+
 Array.prototype.forEach.call(
   document.getElementsByTagName('button'), function(item) {
   item.addEventListener('mousedown', createRipple);
@@ -22,4 +35,9 @@ function createRipple(e) {
 
 function autoGrow(e) {
   if (this.scrollHeight > this.clientHeight) this.style.height = this.scrollHeight + "px";
+}
+
+function includes(arr, entity) {
+  for (var i = 0; i < arr.length; i++) if (arr[i] === entity) return true;
+  return false;
 }

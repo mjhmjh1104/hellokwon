@@ -4,7 +4,7 @@
       <button class="notice" type="button" style="width: 100%;">
         <div class="inside" style="display: table">
           <label style="display: table-cell; font-weight: bold; margin-right: 50px; float: left;"><%= notice.title.substr(0, 10) + (notice.title.length > 10 ? '...' : '') %></label>
-          <label style="display: table-cell; overflow: hidden; float: right; height: 20px;"><%= notice.body.substr(0, 60) %></label>
+          <label style="display: table-cell; overflow: hidden; float: right; height: 20px;"><%= notice.body.replace(/(\<.*?\>)/g, '').substr(0, 60) %></label>
         </div>
       </button>
     </a>

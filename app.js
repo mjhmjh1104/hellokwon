@@ -7,6 +7,11 @@ var session     = require('express-session');
 var flash       = require ('connect-flash');
 var async       = require('async');
 var bodyParser  = require('body-parser');
+var http        = require('http').Server(app);
+var io          = require('socket.io')(http);
+var grid        = require('gridfs-stream');
+var fs          = require('fs');
+var multer      = require('multer');
 
 mongoose.connect('mongodb://' + process.env.MONGO_DB + "@ds155714.mlab.com:55714/hellokwon", {useNewUrlParser: true});
 
@@ -39,9 +44,18 @@ var noticeSchema = mongoose.Schema({
   title: {type: String},
   body: {type: String, required: true},
   author: {type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true},
-  createdAt: {type: Date, default: Date.now}
+  createdAt: {type: Date, default: Date.now},
+  views: {type: Number, default: 0}
 });
 var Notice = mongoose.model('notice', noticeSchema);
+
+var imageSchema = mongoose.Schema({
+  img: {
+    data: Buffer,
+    contentType: String
+  }
+});
+var Image = mongoose.model('image', imageSchema);
 
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
@@ -55,6 +69,11 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use((upload = multer({ dest: './uploads', rename: function(fieldname, filename) {
+  return filename.replace(/\W+/g, '-').toLowerCase() + Date.now();
+}})).any());
+
+var upload;
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
@@ -81,15 +100,20 @@ passport.use('local-login', new LocalStrategy({
   });
 }));
 
+io.on('connection', function(socket) {
+
+});
+
 app.get('/', function(req, res) {
   Notice.find({}, function(err) {
     if (err) return res.status(520).render('error', {errorMessage: err});
   }).populate('author').sort('-createdAt').exec(function(err, tNotice) {
-    res.render('main', {user: req.user, notice: tNotice[0], notices: tNotice.slice(0, 4)});
+    res.render('main', {user: req.user, notice: tNotice[0], notices: tNotice.slice(0, 4), posts: []});
   });
 });
 
 app.get('/login', function(req, res) {
+  if (req.user) res.render('/loginDone');
   res.render('login/login', {
     name: req.flash('name')[0],
     loginError: req.flash('loginError')[0]
@@ -151,7 +175,7 @@ app.post('/users', function (req, res, next) {
 });
 
 app.get('/users', isLoggedin, function(req, res) {
-  res.render('users/user', {user: req.user});
+  res.redirect('/users/' + req.user._id);
 });
 
 app.post('/users/auth/:to', isLoggedin, function(req, res) {
@@ -162,18 +186,28 @@ app.post('/users/auth/:to', isLoggedin, function(req, res) {
 });
 
 app.get('/users/delete', isLoggedin, function(req, res) {
-  res.render('users/delete', {user: req.user, userError: req.flash('userError')[0]});
+  res.redirect('/users/delete/' + req.user._id);
+});
+
+app.get('/users/delete/:id', isLoggedin, function(req, res) {
+  User.findOne({_id: req.params.id}, function(err, user) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    if (!user) return res.status(400).render('error', {errorMessage: '400 Bad Request'});
+    if (req.user.admin !== true && req.user._id.toString() != user._id.toString()) req.status(403).render('error', {errorMessage: '403 Forbidden'});
+    res.render('users/delete', {user: user, userError: req.flash('userError')[0], admin: user.admin !== true && req.user.admin === true});
+  });
 });
 
 app.post('/users/delete/:id', function(req, res, next) {
-  if (!req.user) res.status(401).render('error', {errorMessage: '401 Unauthorized'});
+  if (req.user && req.user.admin === true) return next();
+  if (!req.user) return res.status(401).render('error', {errorMessage: '401 Unauthorized'});
   else if (!req.user.authenticate(req.body.user.password)) {
     req.flash('userError', '비밀번호가 다릅니다');
     res.redirect('back');
-  } else if (req.user.id != req.params.id) res.status(403).render('error', {errorMessage: '403 Forbidden'});
+  } else if (req.user.id != req.params.id) return res.status(403).render('error', {errorMessage: '403 Forbidden'});
   else next();
 }, function(req, res) {
-  User.findOneAndRemove({_id: req.params.id, name: req.user.name}, function(err, user) {
+  User.findOneAndRemove({_id: req.params.id}, function(err, user) {
     if (err) return res.status(520).render('error', {errorMessage: err});
     if (!user) return res.status(400).render('error', {errorMessage: "400 Bad Request"});
     res.redirect('/');
@@ -181,11 +215,21 @@ app.post('/users/delete/:id', function(req, res, next) {
 });
 
 app.get('/users/edit', isLoggedin, function(req, res) {
-  res.render('users/edit', {user: req.user, userError: req.flash('userError')[0]});
+  res.redirect('/users/edit/' + req.user._id);
+});
+
+app.get('/users/edit/:id', isLoggedin, function(req, res) {
+  User.findOne({_id: req.params.id}, function(err, user) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    if (!user) return res.status(400).render('error', {errorMessage: '400 Bad Request'});
+    if (req.user.admin !== true && req.user._id.toString() != user._id.toString()) req.status(403).render('error', {errorMessage: '403 Forbidden'});
+    res.render('users/edit', {user: user, userError: req.flash('userError')[0], admin: user.admin !== true && req.user.admin === true});
+  });
 });
 
 app.post('/users/edit/:id', function(req, res, next) {
-  if (!req.user) res.status(401).render('error', {errorMessage: '401 Unauthorized'});
+  if (req.user && req.user.admin === true) return next();
+  if (!req.user) return res.status(401).render('error', {errorMessage: '401 Unauthorized'});
   else if (!req.user.authenticate(req.body.user.currentPassword)) {
     req.flash('userError', '비밀번호가 다릅니다');
     res.redirect('back');
@@ -197,14 +241,23 @@ app.post('/users/edit/:id', function(req, res, next) {
 }, function(req, res) {
   var nUser = req.body.user;
   nUser.password = bcrypt.hashSync(nUser.password);
-  User.findOneAndUpdate({_id: req.params.id, name: req.user.name}, nUser, function(err, user) {
+  User.findOneAndUpdate({_id: req.params.id}, nUser, function(err, user) {
     if (err) return res.status(520).render('error', {errorMessage: err});
     if (!user) return res.status(400).render('error', {errorMessage: "400 Bad Request"});
-    res.redirect('/users');
+    res.redirect('/users/' + user._id);
+  });
+});
+
+app.get('/users/:id', function(req, res) {
+  User.findOne({_id: req.params.id}, function(err, user) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    if (!user) return res.status(400).render('error', {errorMessage: '400 Bad Request'});
+    res.render('users/user', {user: user, own: req.user && (req.user.admin === true || req.user._id == req.params.id)});
   });
 });
 
 app.get('/notice', function(req, res) {
+  req.session.returnTo = req.originalUrl;
   Notice.find({}, function(err) {
     if (err) return res.status(520).render('error', {errorMessage: err});
   }).populate('author').sort('-createdAt').exec(function(err, notices) {
@@ -230,6 +283,7 @@ app.post('/notice', function(req, res) {
 });
 
 app.get('/notice/new', isLoggedin, isAdmin, function(req, res) {
+  req.session.returnTo = req.originalUrl;
   var formData = '';
   if (req.session.previousBody) {
     formData = req.session.previousBody;
@@ -239,6 +293,10 @@ app.get('/notice/new', isLoggedin, isAdmin, function(req, res) {
 });
 
 app.get('/notice/:id', function(req, res) {
+  req.session.returnTo = req.originalUrl;
+  Notice.findOneAndUpdate({_id: req.params.id}, {$inc: {views: 1}}, function(err) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+  });
   Notice.findOne({_id: req.params.id}, function(err) {
     if (err) return res.status(520).render('error', {errorMessage: err});
   }).populate('author').exec(function(err, notice) {
@@ -276,7 +334,38 @@ app.get('/notice/:id/edit', isLoggedin, function(req, res) {
   });
 });
 
-app.listen(process.env.PORT || 3000, function() {
+app.get('/photo', function(req, res) {
+  Notice.find({}, function(err) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+  }).populate('author').sort('-createdAt').exec(function(err, notices) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    res.render('photo/posts', {user: req.user, post: notices[0]})
+  });
+});
+
+app.get('/photo/new', isLoggedin, function(req, res) {
+  req.session.returnTo = req.originalUrl;
+  res.render('photo/new', {user: req.user});
+});
+
+app.post('/photo', isLoggedin, upload.single('fileInput'), function(req, res) {
+  var newItem = new Image();
+  console.log(req.files);
+  newItem.img.data = fs.readFileSync(req.files[0].path);
+  newItem.img.contentType = 'image/png';
+  newItem.save();
+  res.redirect('/photo');
+});
+
+app.get('/photo/:id', function(req, res) {
+  Image.findOne({_id: req.params.id}, function(err, image) {
+    if (err) res.status(520).render('error', {errorMessage: err});
+    if (!image) res.status(400).render('error', {errorMessage: '400 Bad Request'});
+    res.render('photo/post', {contentType: image.img.contentType, base64: new Buffer(image.img.data).toString('base64')});
+  })
+})
+
+http.listen(process.env.PORT || 3000, function() {
   console.log('Server is now ON!');
 });
 
@@ -312,6 +401,11 @@ function isLoggedin(req, res, next) {
 function isAdmin(req, res, next) {
   if (!req.user || req.user.admin !== true) res.render('error', {errorMessage: '403 Forbidden'});
   else next();
+}
+
+function includes(arr, entity) {
+  for (var i = 0; i < arr.length; i++) if (arr[i] === entity) return true;
+  return false;
 }
 
 app.get('*', function(req, res) {

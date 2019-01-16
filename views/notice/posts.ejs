@@ -19,10 +19,14 @@
         <button type="button" class="noticeBlock" style="display: block; width: 100%;">
           <div class="upper">
             <label class="title"><%= item.title %></label>
-            <label class="author" style="<%= item.author.admin === true ? 'font-weight: bold; ' : '' %>height: 20px; overflow: hidden; display: inline-block;"><%= item.author.name %></label><br />
+            <div class="author">
+              <div class="author" style="<%= item.author.admin === true ? 'font-weight: bold;' : '' %>"><i class="fas fa-pen" style="margin: 0 10px;"></i><%= item.author.name %></div>
+              <div class="author"><i class="fas fa-calendar-day" style="margin: 0 10px;"></i><%= item.createdAt.getFullYear() %>-<%= item.createdAt.getMonth() + 1 < 10 ? '0' + (item.createdAt.getMonth() + 1) : (item.createdAt.getMonth() + 1) %>-<%= item.createdAt.getDate() < 10 ? '0' + item.createdAt.getDate() : item.createdAt.getDate() %></div>
+              <div class="author"><i class="fas fa-eye" style="margin: 0 10px;"></i><%= item.views %></div>
+            </div>
           </div>
           <div class="bottom" style="margin-top: 10px; width: 100%; text-align: left;">
-            <label class="body" style="height: 20px; overflow: hidden; display: inline-block;"><%= item.body.substr(0, 60) + (item.body.length < 60 ? '' : '...') %></label>
+            <label class="body" style="height: 20px; overflow: hidden; display: inline-block;"><%= item.body.replace(/(\<.*?\>)/g, '').substr(0, 60) + (item.body.replace(/(\<.*?\>)/g, '').length < 60 ? '' : '...') %></label>
           </div>
         </button>
       </a>

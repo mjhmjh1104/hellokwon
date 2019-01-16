@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include ../header.ejs %>
+  </head>
+  <body onload="">
+    <div class="outter">
+      <div class="middle">
+        <div class="inner">
+          <div style="margin: 10px; margin-bottom: 30px;"><label style="font-size: 25px;">사진 업로드</label></div>
+          <div class="uploadBox">
+            <div class="fileBox">
+              <form id="uploadForm" action="/photo" method="post" enctype="multipart/form-data">
+                <input type="text" class="fileName" value="" placeholder="파일을 선택하세요" onclick="document.getElementById('fileInput').click();" readonly></input>
+                <img class="filePreview"></img>
+                <button type="submit" class="fileButton lineBtn" disabled="true">Upload</button>
+                <input type="file" name="fileInput" id="fileInput" class="fileInput" style="margin-top: 25px;"></input>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <% include ../scripts.ejs %>
+    <script type="text/javascript" src="/js/upload.js"></script>
+  </body>
+</html>
