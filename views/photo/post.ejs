@@ -27,7 +27,7 @@
           <a href="/photo/<%= img._id %>/raw" style="inline-block;"><img src="/photo/<%= img._id %>/raw" style="width: 80%"></img></a><br />
           <div class="buttons">
             <a href="javascript:history.back()" style="margin-top: 50px; float: right;"><button type="button">Back</button></a>
-            <a href="/notice" style="margin-top: 50px; float: right;"><button type="button" class="lineBtn">목록</button></a>
+            <a href="/photo" style="margin-top: 50px; float: right;"><button type="button" class="lineBtn">목록</button></a>
             <% if (user && (img.author._id.toString() == user._id.toString() || user.admin === true)) { %>
               <a href="/photo/<%= img._id %>/delete" style="margin-top: 50px; float: right;"><button type="button" style="background-color: #d93025; color: white;">삭제</button></a>
             <% } %>

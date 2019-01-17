@@ -12,6 +12,8 @@
             <div style="margin-bottom: 10px;"><label style="color: #d93025;"><%= loginError %></label><div/><br />
             <input type="text" name="name" value="<%= name %>" placeholder="이름을 입력하세요" autocomplete="username" class="longInput"></input><br />
             <input type="password" name="password" value="" placeholder="비밀번호를 입력하세요" autocomplete="current-password" class="longInput"></input><br />
+            <input type="checkbox" id="remember" name="remember" style="display: none;"></input>
+            <label for="remember" class="cbLabel">Remember</label><br />
             <button class="lineBtn" type="submit">Submit</button><br />
           </form>
           <a href="/users/new"><button type="button">가입</button></a>

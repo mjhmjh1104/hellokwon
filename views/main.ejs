@@ -8,57 +8,72 @@
       <% include head.ejs %>
     </div>
     <div class="container">
-      <div class="board" style="width: calc(100% - 40); height: 500px; margin: 20px; margin-bottom: 50px; display: block;">
+      <div class="board" style="width: calc(100% - 40); margin: 20px; margin-bottom: 50px; display: block;">
         <div class="outter" style="width: 100%; height: 100%; position: static; background-color: black;">
-          <div class="middle" style="<% if (imgs[0]) { %>background-image: url('./photo/<%= imgs[0]._id %>/raw');<% } %>">
-            <div class="nInner">
-              <div width="100%" height="100px" style="font-size: 50px; background-color: rgba(0, 0, 0, .7);"><label style="color: white;">일정 시작까지 </label><br /><div class="time" id="countDown" style="color: white;">00:00:00</div></div>
-            </div>
+          <div class="middle displayImage" style="<% if (imgs[0]) { %>background-image: url('./photo/<%= imgs[0]._id %>/raw');<% } %>">
+            <% if (main.title != 'GoodNight') { %>
+              <div class="nInner">
+                <label style="font-size: 10px; color: white;">현재 일정</label><br />
+                <div class="displayInner">
+                  <label style="color: white;"><%- main.title == 'Countdown' ? '일정 시작까지' : main.title %></label><br />
+                  <% if (main.title == 'Countdown') { %><div class="time" id="countDown" style="color: white;">00:00:00</div><% } %>
+                </div>
+              </div>
+            <% } %>
           </div>
         </div>
       </div>
-      <div class="container" style="width: calc(100% - 100px); margin: 30px 50px; clear: both; display: inline-block;">
-        <div class="list">
-          <div class="navigation" style="display: block; width: 100%;">
-            <div class="upper" style="display: inline-block; float: left; margin: 15px;">
-              <label style="font-weight: bold;">공지</label><br />
+      <div class="bottomContainer" style="display: block; width: 100%; position: absolute; left: 0;">
+        <% if (user && user.admin === true) { %>
+          <div class="changeDisplay" style="margin-left: 30px;">
+            <form name="changeForm" id="changeForm" action="/change" method="post">
+              <input type="text" name="main[title]" style="width: calc(100% - 100px);"></input>
+            </form>
+          </div>
+        <% } %>
+        <div class="container" style="width: calc(100% - 100px); margin: 30px 50px; clear: both; display: inline-block;">
+          <div class="list">
+            <div class="navigation" style="display: block; width: 100%;">
+              <div class="upper listTitle">
+                <label>공지</label><br />
+              </div>
+              <div class="buttons">
+                <% if (user && user.admin === true) { %>
+                  <a href="/notice/new" class="mainButton"><button type="button" class="mainButton">Write</button></a>
+                <% } %>
+                <a href="/notice" class="mainButton"><button type="button" class="lineBtn mainButton">More</button></a>
+              </div>
             </div>
-            <div class="buttons">
-              <% if (user && user.admin === true) { %>
-                <a href="/notice/new"><button type="button">Write</button></a>
-              <% } %>
-              <a href="/notice"><button type="button" class="lineBtn">More</button></a>
+            <div class="realList" style="display: block; width: 100%;">
+              <% Array.prototype.forEach.call(notices, function(item) { %>
+                <a href="/notice/<%= item._id %>" style="width: calc(100% - 10px);">
+                  <button class="mainItem" style="white-space: nowrap; text-align: left;" type="button">
+                    <label style="font-weight: bold;"><%= item.title.substr(0, 15) + (item.title.length > 15 ? '...' : '') %></label>
+                  </button>
+                </a>
+              <% }); %>
             </div>
           </div>
-          <div class="realList" style="display: block; width: 100%;">
-            <% Array.prototype.forEach.call(notices, function(item) { %>
-              <a href="/notice/<%= item._id %>" style="width: calc(100% - 10px);">
-                <button class="mainItem" style="white-space: nowrap; text-align: left;" type="button">
-                  <label style="font-weight: bold;"><%= item.title.substr(0, 15) + (item.title.length > 15 ? '...' : '') %></label>
-                </button>
-              </a>
-            <% }); %>
-          </div>
-        </div>
-        <div class="list">
-          <div class="navigation" style="display: block; width: 100%;">
-            <div class="upper" style="display: inline-block; float: left; margin: 15px;">
-              <label style="font-weight: bold;">사진</label><br />
+          <div class="list">
+            <div class="navigation" style="display: block; width: 100%;">
+              <div class="upper listTitle">
+                <label>사진</label><br />
+              </div>
+              <div class="buttons">
+                <% if (user) { %>
+                  <a href="/photo/new" class="mainButton"><button type="button" class="mainButton">Upload</button></a>
+                <% } %>
+                <a href="/photo" class="mainButton"><button type="button" class="lineBtn mainButton">More</button></a>
+              </div>
             </div>
-            <div class="buttons">
-              <% if (user) { %>
-                <a href="/photo/new"><button type="button">Upload</button></a>
-              <% } %>
-              <a href="/photo"><button type="button" class="lineBtn">More</button></a>
+            <div style="display: block; width: 100%; height: 60px;"></div>
+            <div class="realList" style="display: block; width: 100%;">
+              <% Array.prototype.forEach.call(imgs, function(item) { %>
+                <a href="/photo/<%= item._id %>" style="display: inline;">
+                  <img src="/photo/<%= item._id %>/raw" class="photoPrev"></img>
+                </a>
+              <% }); %>
             </div>
-          </div>
-          <div style="display: block; width: 100%; height: 60px;"></div>
-          <div class="realList" style="display: block; width: 100%;">
-            <% Array.prototype.forEach.call(imgs, function(item) { %>
-              <a href="/photo/<%= item._id %>" style="display: inline;">
-                <img src="/photo/<%= item._id %>/raw" style="width: 45%; margin: 1%;"></img>
-              </a>
-            <% }); %>
           </div>
         </div>
       </div>

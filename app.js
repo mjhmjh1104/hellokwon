@@ -60,6 +60,21 @@ var imageSchema = mongoose.Schema({
 });
 var Image = mongoose.model('image', imageSchema);
 
+var mainSchema = mongoose.Schema({
+  title: {type: String, default: '2019 실리콘밸리 체험프로그램'},
+  name: {type: String, default: 'main'}
+});
+var MainInfo = mongoose.model('main', mainSchema);
+
+MainInfo.findOne({name: 'main'}, function(err, main) {
+  if (err) return console.log('Main ERROR: ' + err);
+  if (!main) {
+    MainInfo.create({}, function(err) {
+      if (err) return console.log('Main ERROR: ' + err);
+    });
+  }
+});
+
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
@@ -72,6 +87,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+
 var upload = multer({ dest: './uploads', rename: function(fieldname, filename) {
   return filename.replace(/\W+/g, '-').toLowerCase() + Date.now();
 }});
@@ -112,7 +128,10 @@ app.get('/', function(req, res) {
     Image.find({}, function(err) {
       if (err) return res.status(520).render('error', {errorMessage: err});
     }).populate('author').sort('-createdAt').exec(function(err, imgs) {
-      res.render('main', {user: req.user, notice: tNotice[0], notices: tNotice.slice(0, 4), imgs: imgs.slice(0, 4)});
+      MainInfo.findOne({name: 'main'}, function(err, main) {
+        if (err) return res.status(520).render('error', {errorMessage: err});
+        res.render('main', {user: req.user, notice: tNotice[0], notices: tNotice.slice(0, 4), imgs: imgs.slice(0, 4), main: main});
+      });
     });
   });
 });
@@ -133,10 +152,13 @@ app.post('/login', function(req, res, next) {
     res.redirect('/login');
   } else next();
 }, passport.authenticate('local-login', {
-  successRedirect: '/loginDone',
   failureRedirect: '/login',
   failureFlash: true
-}));
+}), function(req, res, next) {
+  if (req.body.remember === 'on') req.session.cookie.maxAge = 7 * 24 * 60 * 60 * 1000; // cookie expires after 7 days
+  else req.session.cookie.expires = false;
+  res.redirect('/loginDone');
+});
 
 app.get('/loginDone', function(req, res) {
   var destination = req.session.returnTo || '/';
@@ -145,10 +167,8 @@ app.get('/loginDone', function(req, res) {
 });
 
 app.get('/logout', function(req, res) {
-  var destination = req.session.returnTo || '/';
-  delete req.session.returnTo;
   req.logout();
-  res.redirect(destination);
+  res.redirect('/');
 });
 
 app.get('/users/new', function(req, res) {
@@ -392,6 +412,14 @@ app.get('/photo/:id/delete', isLoggedin, function(req, res) {
     else if (!image) return res.render('error', {errorMessage: '400 Bad Request'});
     else res.redirect('/photo');
   });
+});
+
+app.post('/change', isLoggedin, isAdmin, function(req, res) {
+  MainInfo.findOneAndUpdate({name: 'main'}, req.body.main, function(err, main) {
+    if (err) return console.log('Title ERROR: ' + err);
+    console.log(main);
+  });
+  res.redirect('/');
 });
 
 http.listen(process.env.PORT || 3000, function() {

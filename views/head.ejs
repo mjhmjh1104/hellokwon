@@ -1,10 +1,10 @@
 <div class="container" style="height: 65.6px;">
   <% if (notice) { %>
-    <a href="/notice/<%= notice._id %>">
-      <button class="notice" type="button" style="width: 100%;">
-        <div class="inside" style="display: table">
-          <label style="display: table-cell; font-weight: bold; margin-right: 50px; float: left;"><%= notice.title.substr(0, 10) + (notice.title.length > 10 ? '...' : '') %></label>
-          <label style="display: table-cell; overflow: hidden; float: right; height: 20px;"><%= notice.body.replace(/(\<.*?\>)/g, '').substr(0, 60) %></label>
+    <a href="/notice/<%= notice._id %>" class="noticeContainer">
+      <button class="notice" type="button">
+        <div class="inside noticeInside" style="display: inline-block; float: left; clear: none;">
+          <label class="noticeInsideTitle" style="display: table-cell; font-weight: bold; float: left;"><%= notice.title.substr(0, 10) + (notice.title.length > 10 ? '...' : '') %></label>
+          <label class="noticeInsideBody" style="display: table-cell; overflow: hidden; float: right; height: 20px;"><%= notice.body.replace(/(\<.*?\>)/g, '').substr(0, 60) %></label>
         </div>
       </button>
     </a>

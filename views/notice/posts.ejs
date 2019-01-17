@@ -19,7 +19,7 @@
         <button type="button" class="noticeBlock" style="display: block; width: 100%;">
           <div class="upper">
             <label class="title"><%= item.title %></label>
-            <div class="author">
+            <div class="author authorPack">
               <div class="author" style="<%= item.author.admin === true ? 'font-weight: bold;' : '' %>"><i class="fas fa-pen" style="margin: 0 10px;"></i><%= item.author.name %></div>
               <div class="author"><i class="fas fa-calendar-day" style="margin: 0 10px;"></i><%= item.createdAt.getFullYear() %>-<%= item.createdAt.getMonth() + 1 < 10 ? '0' + (item.createdAt.getMonth() + 1) : (item.createdAt.getMonth() + 1) %>-<%= item.createdAt.getDate() < 10 ? '0' + item.createdAt.getDate() : item.createdAt.getDate() %></div>
               <div class="author"><i class="fas fa-eye" style="margin: 0 10px;"></i><%= item.views %></div>

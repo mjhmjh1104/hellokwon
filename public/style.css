@@ -24,6 +24,26 @@
   border-radius: 19.2px;
 }
 
+.noticeContainer {
+  width: calc(100% - 300px);
+}
+
+.noticeInsideBody {
+  width: calc(100% - 230px);
+}
+
+@media (min-width: 600px) {
+  .notice {
+    display: block;
+  }
+}
+
+@media (max-width: 600px) {
+  .notice {
+    display: none;
+  }
+}
+
 .noticeBlock {
   font-size: 16px;
   margin-top: 11px;
@@ -55,9 +75,6 @@ button:active, input:active, button:focus, input:focus, textarea:active, textare
 }
 
 button, input, textarea {
-  -webkit-appearance: button;
-  -moz-appearance: button;
-  appearance: button;
   text-decoration: none;
   background-color: white;
   -webkit-transition-duration: 0.4s;
@@ -71,6 +88,26 @@ button, input, textarea {
   border-radius: 3px;
   border-width: 0px;
   cursor: pointer;
+}
+
+.cbLabel {
+  border: 1px solid #dadce0;
+  background-color: white;
+  border-radius: 50px;
+  height: 20px;
+  display: inline-block;
+  padding: 10px 20px;
+  -webkit-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -moz-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+  color: black;
+  margin-bottom: 20px;
+}
+
+input[type='checkbox']:checked + .cbLabel {
+	background-color: #4080FF;
+  color: white;
 }
 
 input, textarea {
@@ -166,15 +203,29 @@ a {
   vertical-align: middle;
 }
 
-.inner {
-  margin: auto;
-  width: 350px;
-  border: 1px solid #dadce0;
-  border-radius: 10px;
-  padding: 50px;
-  text-align: center;
-  height: auto;
-  min-height: 400px;
+@media (min-width: 600px) {
+  .inner {
+    margin: auto;
+    width: 350px;
+    border: 1px solid #dadce0;
+    border-radius: 10px;
+    padding: 50px;
+    text-align: center;
+    height: auto;
+    min-height: 400px;
+  }
+}
+@media (max-width: 600px) {
+  .inner {
+    margin: auto;
+    width: 100%;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    text-align: center;
+    height: 100%;
+    padding-top: 50px;
+  }
 }
 
 .nInner {
@@ -192,24 +243,40 @@ a {
 
 .time {
   border: none;
-  width: 400px;
   margin: auto;
   padding: 5px;
   padding-right: 20px;
   padding-left: 20px;
   margin-top: 20px;
   background-color: rgba(255, 255, 255, 0.1);
+  display: block;
+  width: 400px;
+  border-radius: 11.2px;
 }
 
-.title {
-  font-weight: bold;
-  float: left;
+@media (min-width: 700px) {
+  .title {
+    font-weight: bold;
+    float: left;
+    overflow: hidden;
+    height: 20px;
+  }
 }
-
-.body {
-  width: 100%;
+@media (max-width: 700px) {
+  .title {
+    font-weight: bold;
+    float: left;
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+    height: 20px;
+  }
+  .authorPack {
+    display: block;
+    text-align: center;
+    width: 100%;
+  }
 }
-
 .author {
   float: right;
   height: 20px;
@@ -218,24 +285,111 @@ a {
   margin-left: 5px;
 }
 
-.list {
-  width: calc(30% - 40px);
-  margin: 0 11.2px;
-  padding: 20px;
-  padding-top: 10px;
-  border: 1px solid #dadce0;
-  border-radius: 11.2px;
-  float: left;
+.body {
+  width: 100%;
+}
+
+@media (min-width: 780px) {
+  .list {
+    width: calc(50% - 80px);
+    margin: 0 11.2px;
+    padding: 20px;
+    padding-top: 10px;
+    border: 1px solid #dadce0;
+    border-radius: 11.2px;
+    float: left;
+  }
+}
+@media (max-width: 780px) {
+  .list {
+    width: calc(100% - 80px);
+    margin: 0 11.2px;
+    padding: 20px;
+    padding-top: 10px;
+    border: 1px solid #dadce0;
+    border-radius: 11.2px;
+    float: left;
+    margin-bottom: 30px;
+  }
+}
+
+@media (min-width: 400px) {
+  .photoPrev {
+    width: 45%;
+    margin: 2%;
+  }
+}
+@media (max-width: 400px) {
+  .photoPrev {
+    width: 95%;
+    margin: 2%;
+  }
+}
+
+@media (min-width: 450px) {
+  .listTitle {
+    font-weight: bold;
+    display: inline-block;
+    float: left;
+    margin: 15px;
+  }
+}
+@media (max-width: 450px) {
+  .listTitle {
+    font-weight: bold;
+    display: block;
+    float: left;
+    margin: 15px 0;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .mainButton {
+    width: calc(100% - 5px);
+  }
 }
 
 .mainItem {
   width: 100%;
 }
 
-.property {
-  text-align: right;
-  float: right;
-  margin-right: 20px;
+@media (min-width: 500px) {
+  .property {
+    text-align: right;
+    float: right;
+    margin-right: 20px;
+  }
+  .propertyContainer {
+    text-align: right;
+    float: right;
+  }
+}
+@media (max-width: 500px) {
+  .property {
+    text-align: left;
+    margin: 0;
+    width: 100%;
+    display: block;
+  }
+  .propertyContainer {
+    text-align: center;
+    display: inline;
+  }
+}
+
+@media (min-width: 600px) {
+  .noticeNewTitle {
+    margin-left: 30px;
+    width: calc(100% - 350px);
+  }
+}
+@media (max-width: 600px) {
+  .noticeNewTitle {
+    margin-left: 30px;
+    width: calc(100% - 100px);
+  }
 }
 
 .icon, .icon:active, .icon:focus {
@@ -245,12 +399,102 @@ a {
   border-radius: 50px;
 }
 
-.uploadBox {
-  border: 1px solid #dadce0;
-  height: 300px;
-  border-radius: 11.2px;
+@media (min-width: 600px) {
+  .uploadBox {
+    border: 1px solid #dadce0;
+    height: 300px;
+    border-radius: 11.2px;
+  }
+}
+@media (max-width: 600px) {
+  .uploadBox {
+    border: none;
+    border-radius: 0;
+  }
+  .fileName {
+    margin: 0 20px;
+    width: calc(100% - 90px);
+  }
 }
 
-.fileBox input[type="file"] { /* 파일 필드 숨기기 */
+@media (min-width: 600px) {
+  .photoList {
+    width: 31%;
+    margin: 5px;
+  }
+}
+@media (max-width: 600px) and (min-width: 400px) {
+  .photoList {
+    width: 45%;
+    margin: 5px;
+  }
+}
+@media (max-width: 400px) {
+  .photoList {
+    width: 95%;
+    margin: 5px;
+  }
+}
+
+.fileBox input[type="file"] {
   display: none;
+}
+
+.displayImage {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+@media (min-width: 800px) {
+  .displayInner {
+    font-size: 50px;
+    background-color: rgba(0, 0, 0, .7);
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 11.2px;
+    width: 60%;
+  }
+  .board {
+    height: 500px;
+  }
+  .bottomContainer {
+    top: 600px;
+  }
+}
+@media (max-width: 800px) and (min-width: 530px) {
+  .displayInner {
+    font-size: 50px;
+    background-color: rgba(0, 0, 0, .7);
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 0;
+    width: calc(100% - 40px);
+  }
+  .board {
+    height: 500px;
+  }
+  .bottomContainer {
+    top: 600px;
+  }
+}
+@media (max-width: 530px) {
+  .displayInner {
+    font-size: 30px;
+    background-color: rgba(0, 0, 0, .7);
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 0;
+    width: calc(100% - 40px);
+  }
+  .time {
+    font-size: 30px;
+    width: 250px;
+  }
+  .board {
+    height: 250px;
+  }
+  .bottomContainer {
+    top: 350px;
+  }
 }
