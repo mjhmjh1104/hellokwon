@@ -4,35 +4,31 @@
     <% include ../header.ejs %>
   </head>
   <body>
-    <div class="outter">
-      <div class="middle">
-        <div class="nInner">
-          <div class="navigationBar">
-            <% include ../head.ejs %>
-          </div>
-          <div style="text-align: right; float: right; margin-bottom: 20px;">
-            <div class="property">
-              <button type="button" class="icon"><i class="fas fa-calendar-day"></i></button>
-              <label><%= img.createdAt.getFullYear() %>-<%= img.createdAt.getMonth() + 1 < 10 ? '0' + (img.createdAt.getMonth() + 1) : (img.createdAt.getMonth() + 1) %>-<%= img.createdAt.getDate() < 10 ? '0' + img.createdAt.getDate() : img.createdAt.getDate() %> <%= img.createdAt.getHours() < 10 ? '0' + img.createdAt.getHours() : img.createdAt.getHours() %>:<%= img.createdAt.getMinutes() < 10 ? '0' + img.createdAt.getMinutes() : img.createdAt.getMinutes()%></label>
-            </div>
-            <div class="property" style="<%= img.author.admin === true ? 'font-weight: bold; ' : '' %>">
-              <button type="button" class="icon"><i class="fas fa-pen"></i></button>
-              <a href="/users/<%= img.author._id %>"><button type="button" style="font-weight: bold; display: inline-block; margin: 0; padding: 10px 15px;"><%= img.author.name %></button></a>
-            </div>
-            <div class="property">
-              <button type="button" class="icon"><i class="fas fa-eye"></i></button>
-              <label><%= img.views %></label>
-            </div>
-          </div>
-          <a href="/photo/<%= img._id %>/raw" style="inline-block;"><img src="/photo/<%= img._id %>/raw" style="width: 80%"></img></a><br />
-          <div class="buttons">
-            <a href="javascript:history.back()" style="margin-top: 50px; float: right;"><button type="button">Back</button></a>
-            <a href="/photo" style="margin-top: 50px; float: right;"><button type="button" class="lineBtn">목록</button></a>
-            <% if (user && (img.author._id.toString() == user._id.toString() || user.admin === true)) { %>
-              <a href="/photo/<%= img._id %>/delete" style="margin-top: 50px; float: right;"><button type="button" style="background-color: #d93025; color: white;">삭제</button></a>
-            <% } %>
-          </div>
-        </div>
+    <div class="navigationBar">
+      <% include ../head.ejs %>
+    </div>
+    <div class="propertyContainer">
+      <div class="property">
+        <button type="button" class="icon"><i class="fas fa-calendar-day"></i></button>
+        <label><%= img.createdAt.getFullYear() %>-<%= img.createdAt.getMonth() + 1 < 10 ? '0' + (img.createdAt.getMonth() + 1) : (img.createdAt.getMonth() + 1) %>-<%= img.createdAt.getDate() < 10 ? '0' + img.createdAt.getDate() : img.createdAt.getDate() %> <%= img.createdAt.getHours() < 10 ? '0' + img.createdAt.getHours() : img.createdAt.getHours() %>:<%= img.createdAt.getMinutes() < 10 ? '0' + img.createdAt.getMinutes() : img.createdAt.getMinutes()%></label>
+      </div>
+      <div class="property" style="<%= img.author.admin === true ? 'font-weight: bold; ' : '' %>">
+        <button type="button" class="icon"><i class="fas fa-camera"></i></button>
+        <a href="/users/<%= img.author._id %>"><button type="button" style="font-weight: bold; display: inline-block; margin: 0; padding: 10px 15px;"><%= img.author.name %></button></a>
+      </div>
+      <div class="property">
+        <button type="button" class="icon"><i class="fas fa-eye"></i></button>
+        <label><%= img.views %></label>
+      </div>
+    </div>
+    <div class="nInner">
+      <a href="/photo/<%= img._id %>/raw" style="inline-block;"><img src="/photo/<%= img._id %>/raw" style="width: 80%"></img></a><br />
+      <div class="buttons">
+        <a href="javascript:history.back()" style="margin-top: 50px; float: right;"><button type="button">Back</button></a>
+        <a href="/photo" style="margin-top: 50px; float: right;"><button type="button" class="lineBtn">목록</button></a>
+        <% if (user && (img.author._id.toString() == user._id.toString() || user.admin === true)) { %>
+          <a href="/photo/<%= img._id %>/delete" style="margin-top: 50px; float: right;"><button type="button" style="background-color: #d93025; color: white;">삭제</button></a>
+        <% } %>
       </div>
     </div>
   </body>
