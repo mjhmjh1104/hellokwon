@@ -15,8 +15,14 @@
               <div class="nInner">
                 <label style="font-size: 10px; color: white;">현재 일정</label><br />
                 <div class="displayInner">
-                  <label style="color: white;"><%- main.title == 'Countdown' ? '일정 시작까지' : main.title %></label><br />
-                  <% if (main.title == 'Countdown') { %><div class="time" id="countDown" style="color: white;">00:00:00</div><% } %>
+                  <% if (main.title == 'Daily') { %>
+                    <label style="color: white;">하루 기록하기</label><br />
+                    <% if (daily === true) { %><a href="/daily/new"><button type="button" class="lineBtn">일기 쓰기</button></a>
+                    <% } else { %><a href="/daily"><button type="button" class="lineBtn">일기 보기</button></a><% } %>
+                  <% } else { %>
+                    <label style="color: white;"><%- main.title == 'Countdown' ? '일정 시작까지' : main.title %></label><br />
+                    <% if (main.title == 'Countdown') { %><div class="time" id="countDown" style="color: white;">00:00:00</div><% } %>
+                  <% } %>
                 </div>
               </div>
             <% } %>
@@ -60,9 +66,7 @@
                 <label>사진</label><br />
               </div>
               <div class="buttons">
-                <% if (user) { %>
-                  <a href="/photo/new" class="mainButton"><button type="button" class="mainButton">Upload</button></a>
-                <% } %>
+                <a href="/photo/new" class="mainButton"><button type="button" class="mainButton">Upload</button></a>
                 <a href="/photo" class="mainButton"><button type="button" class="lineBtn mainButton">More</button></a>
               </div>
             </div>

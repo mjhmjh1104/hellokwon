@@ -9,8 +9,6 @@ function ready() {
   }
 }
 
-var socket = io();
-
 Array.prototype.forEach.call(
   document.getElementsByTagName('button'), function(item) {
   item.addEventListener('mousedown', createRipple);
@@ -38,6 +36,6 @@ function autoGrow(e) {
 }
 
 function includes(arr, entity) {
-  for (var i = 0; i < arr.length; i++) if (arr[i] === entity) return true;
+  for (var i = 0; i < arr.length; i++) if (arr[i] == entity) return true;
   return false;
 }

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include ../header.ejs %>
+  </head>
+  <body>
+    <div class="navigationBar">
+      <div class="buttons">
+        <% if (!user) { %>
+          <a href="/users/new"><button type="button">회원가입</button></a>
+          <a href="/login"><button type="button" class="lineBtn">로그인</button></a>
+        <% } else { %>
+          <a href="/users"><button type="button" class="<%= user.admin === true ? 'admin' : '' %>"><%= user.name %>님</button></a>
+          <a href="/logout"><button type="button">로그아웃</button></a>
+        <% } %>
+      </div>
+      <button type="button" onclick="attach();">첨부</button>
+      <form id="editDaily" class="dailyForm" action="/daily/<%= post._id %>" method="post">
+        <br /><textarea type="textarea" name="daily[body]" class="attachDest" placeholder="내용을 입력하세요" autocomplete="body" style="margin-left: 30px; width: calc(100% - 100px);"><%= post.body %></textarea><br />
+        <button type="submit" class="lineBtn" style="float: right; margin-right: 30px;">수정</button>
+        <a href="/daily" style="float: right; margin-right: 10px;"><button type="button">목록</button></a><a href="/" style="float: right; margin-right: 10px;"><button type="button">Home</button></a>
+      </form>
+      <div class="overLap" onclick="unAttach();">
+        <div class="outter">
+          <div class="middle">
+            <div class="inner" onclick="unAttach();" style="background-color: white;">
+              <div class="attachment">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <% include ../scripts.ejs %>
+    <script type="text/javascript" src="/js/attach.js"></script>
+  </body>
+</html>

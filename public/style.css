@@ -498,3 +498,133 @@ a {
     top: 350px;
   }
 }
+
+@media (min-width: 340px) {
+  .likeButton {
+    display: inline-block;
+    float: left;
+  }
+  .likeLabel {
+    float: left;
+    display: inline;
+    margin-top: 15px;
+    margin-left: 10px;
+  }
+  .likeContainer {
+    display: inline-block;
+    float: left;
+  }
+}
+@media (max-width: 340px) {
+  .likeButton {
+    width: 100%;
+    text-align: center;
+    display: block;
+    margin-bottom: 20px;
+  }
+  .likeContainer {
+    display: block;
+    width: 100%;
+  }
+  .likeLabel {
+    display: inline;
+  }
+}
+
+@media (min-width: 900px) {
+  .dailyItem {
+    width: 30%;
+    margin: 1%;
+  }
+
+  .dailyBody {
+    height: 300px;
+    overflow: hidden;
+    display: inline-block;
+  }
+}
+@media (max-width: 900px) and (min-width: 650px) {
+  .dailyItem {
+    width: 45%;
+    margin: 2%;
+  }
+
+  .dailyBody {
+    height: 250px;
+    overflow: hidden;
+    display: inline-block;
+  }
+}
+@media (max-width: 650px) {
+  .dailyItem {
+    width: 95%;
+    margin: 2%;
+  }
+
+  .dailyBody {
+    height: 200px;
+    overflow: hidden;
+    display: inline-block;
+  }
+}
+
+@media (min-width: 300px) {
+  .dailyTitle {
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+    height: 20px;
+    font-size: 30px;
+  }
+}
+@media (max-width: 300px) {
+  .dailyTitle {
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.overLap {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, .5);
+  display: none;
+}
+
+.attachContainer {
+  display: inline;
+}
+
+@media (min-width: 350px) {
+  .attachItem {
+    width: 45%;
+    margin: 2%;
+  }
+}
+@media (max-width: 350px) {
+  .attachItem {
+    width: 95%;
+    margin: 2%;
+  }
+}
+
+@media (min-width: 520px) {
+  .attachedImg {
+    width: 500px;
+    margin: 10px;
+  }
+}
+@media (max-width: 520px) {
+  .attachedImg {
+    width: calc(100% - 20px);
+    margin: 10px;
+  }
+}

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include ../header.ejs %>
+  </head>
+  <body>
+    <div class="navigationBar">
+      <% include ../head.ejs %>
+    </div>
+    <div style="margin: 10px; margin-bottom: 30px; text-align: center;"><label style="font-size: 40px;"><%= post.date %></label></div>
+    <div style="margin: 10px; margin-top: 100px; margin-bottom: 50px; white-space: pre-wrap;"><% var e = post.body, u = post.author; %><%- post.body %></div>
+    <div class="buttons">
+      <a href="/daily" style="float: right;"><button type="button" class="lineBtn">목록</button></a>
+      <% if (user && post.author._id.toString() == user._id.toString() && edit === true) { %>
+        <a href="/daily/<%= post._id %>/edit" style="float: right;"><button type="button">수정</button></a>
+      <% } %>
+    </div>
+    <% include ../scripts.ejs %>
+  </body>
+</html>

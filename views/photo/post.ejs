@@ -3,7 +3,7 @@
   <head>
     <% include ../header.ejs %>
   </head>
-  <body>
+  <body onload="likeInit('<%= user ? user._id : '' %>', '<%= img._id %>', 'p'); likeReq();">
     <div class="navigationBar">
       <% include ../head.ejs %>
     </div>
@@ -23,13 +23,24 @@
     </div>
     <div class="nInner">
       <a href="/photo/<%= img._id %>/raw" style="inline-block;"><img src="/photo/<%= img._id %>/raw" style="width: 80%"></img></a><br />
-      <div class="buttons">
-        <a href="javascript:history.back()" style="margin-top: 50px; float: right;"><button type="button">Back</button></a>
-        <a href="/photo" style="margin-top: 50px; float: right;"><button type="button" class="lineBtn">목록</button></a>
-        <% if (user && (img.author._id.toString() == user._id.toString() || user.admin === true)) { %>
-          <a href="/photo/<%= img._id %>/delete" style="margin-top: 50px; float: right;"><button type="button" style="background-color: #d93025; color: white;">삭제</button></a>
+    </div>
+    <div class="likeButton" style="margin-top: 50px;">
+      <div class="likeContainer">
+        <% if (user) { %>
+          <button type="button" class="like lineBtn" onclick="like();">Like</button>
+        <% } else { %>
+          <a href="/login"><button type="button" class="lineBtn">Like</button></a>
         <% } %>
       </div>
+      <label class="likeLabel"></label>
     </div>
+    <div class="buttons">
+      <a href="/photo" style="margin-top: 50px; float: right;"><button type="button" class="lineBtn">목록</button></a>
+      <% if (user && (img.author._id.toString() == user._id.toString() || user.admin === true)) { %>
+        <a href="/photo/<%= img._id %>/delete" style="margin-top: 50px; float: right;"><button type="button" style="background-color: #d93025; color: white;">삭제</button></a>
+      <% } %>
+    </div>
+    <% include ../scripts.ejs %>
+    <script type="text/javascript" src="/js/like.js"></script>
   </body>
 </html>

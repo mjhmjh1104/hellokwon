@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include ../header.ejs %>
+  </head>
+  <body>
+    <div class="navigationBar">
+      <% include ../head.ejs %>
+    </div>
+    <div class="buttons" style="padding-right: 10px;">
+      <a href="/"><button type="button">Home</button></a>
+      <% if (user) { %>
+        <a href="/daily/new" style="margin-right: 10px; float: right;"><button type="button" class="lineBtn">Write</button></a>
+      <% } %>
+    </div>
+    <div style="display: block; width: 100%; height: 55px"></div>
+    <% Array.prototype.forEach.call(posts, function(item) { %>
+      <a href="/daily/<%= item._id %>" class="dailyItem">
+        <button type="button" class="noticeBlock" style="display: block; width: 100%;">
+          <div class="upper">
+            <label class="dailyTitle"><%= item.date %></label>
+          </div>
+          <div class="bottom" style="margin-top: 10px; width: 100%; text-align: left;">
+            <label class="dailyBody"><%= item.body.replace(/(\<.*?\>)/g, '').substr(0, 600) + (item.body.replace(/(\<.*?\>)/g, '').length < 600 ? '' : '...') %></label>
+          </div>
+        </button>
+      </a>
+    <% }); %>
+    <% include ../scripts.ejs %>
+  </body>
+</html>

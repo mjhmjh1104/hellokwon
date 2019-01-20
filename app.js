@@ -8,12 +8,11 @@ var flash       = require ('connect-flash');
 var async       = require('async');
 var bodyParser  = require('body-parser');
 var http        = require('http').Server(app);
-var io          = require('socket.io')(http);
 var fs          = require('fs');
 var multer      = require('multer');
 var sharp       = require('sharp');
 
-mongoose.connect('mongodb://' + process.env.MONGO_DB + "@ds155714.mlab.com:55714/hellokwon", {useNewUrlParser: true});
+mongoose.connect('mongodb://' + process.env.MONGO_DB + '@ds155714.mlab.com:55714/hellokwon', {useNewUrlParser: true});
 
 var db = mongoose.connection;
 db.once('open', function() {
@@ -45,9 +44,18 @@ var noticeSchema = mongoose.Schema({
   body: {type: String, required: true},
   author: {type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true},
   createdAt: {type: Date, default: Date.now},
-  views: {type: Number, default: 0}
+  views: {type: Number, default: 0},
+  like: {type: [String], default: []}
 });
 var Notice = mongoose.model('notice', noticeSchema);
+
+var dailySchema = mongoose.Schema({
+  body: {type: String, required: true},
+  author: {type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true},
+  createdAt: {type: Date, default: Date.now},
+  date: {type: String, required: true}
+});
+var Daily = mongoose.model('daily', dailySchema);
 
 var imageSchema = mongoose.Schema({
   img: {
@@ -56,7 +64,8 @@ var imageSchema = mongoose.Schema({
   },
   author: {type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true},
   createdAt: {type: Date, default: Date.now},
-  views: {type: Number, default: 0}
+  views: {type: Number, default: 0},
+  like: {type: [String], default: []}
 });
 var Image = mongoose.model('image', imageSchema);
 
@@ -67,12 +76,22 @@ var mainSchema = mongoose.Schema({
 var MainInfo = mongoose.model('main', mainSchema);
 
 MainInfo.findOne({name: 'main'}, function(err, main) {
-  if (err) return console.log('Main ERROR: ' + err);
+  if (err) return console.log('Main ERROR: ', err);
   if (!main) {
     MainInfo.create({}, function(err) {
-      if (err) return console.log('Main ERROR: ' + err);
+      if (err) return console.log('Main ERROR: ', err);
     });
   }
+});
+
+var sessionMiddleware = session({
+  name: 'session',
+  secret: "FourthSiliconValleyCampSecretHashValue%!@^#&)*$_(",
+  store: new (require('connect-mongo')(session))({
+    url: 'mongodb://' + process.env.MONGO_DB + '@ds155714.mlab.com:55714/hellokwon'
+  }),
+  resave: true,
+  saveUninitialized: true
 });
 
 app.set('view engine', 'ejs');
@@ -80,11 +99,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(flash());
-app.use(session({
-  secret: 'FourthSiliconValleyCampSecretHashValue%!@^#&)*$_(',
-  resave: true,
-  saveUninitialized: true
-}));
+app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -117,11 +132,86 @@ passport.use('local-login', new LocalStrategy({
   });
 }));
 
-io.on('connection', function(socket) {
-
-});
+var io = require('socket.io')(http)
+  .use(function(socket, next) {
+    sessionMiddleware(socket.request, {}, next);
+  })
+  .on('connection', function(socket) {
+    socket.on('like', function(type, post) {
+      if (!socket.request.session.passport.user) return;
+      if (type == 'n') {
+        Notice.findOneAndUpdate({_id: mongoose.Types.ObjectId(post)}, {$push: {like: socket.request.session.passport.user}}, function(err) {
+          if (err) return console.log('Like ERROR: ', err);
+          if (!post) return;
+          Notice.findOne({_id: mongoose.Types.ObjectId(post)}, function(err, post) {
+            if (err) return console.log('Like ERROR: ', err);
+            if (!post) return;
+            io.emit('likeUpdate', 'n', post._id.toString(), post.like);
+          });
+        });
+      } else if (type == 'p') {
+        Image.findOneAndUpdate({_id: mongoose.Types.ObjectId(post)}, {$push: {like: socket.request.session.passport.user}}, function(err) {
+          if (err) return console.log('Like ERROR: ', err);
+          if (!post) return;
+          Image.findOne({_id: mongoose.Types.ObjectId(post)}, function(err, post) {
+            if (err) return console.log('Like ERROR: ', err);
+            if (!post) return;
+            io.emit('likeUpdate', 'p', post._id.toString(), post.like);
+          });
+        });
+      }
+    });
+    socket.on('unlike', function(type, post) {
+      if (!socket.request.session.passport.user) return;
+      if (type == 'n') {
+        Notice.findOneAndUpdate({_id: mongoose.Types.ObjectId(post)}, {$pull: {like: socket.request.session.passport.user}}, function(err) {
+          if (err) return console.log('Like ERROR: ', err);
+          if (!post) return;
+          Notice.findOne({_id: mongoose.Types.ObjectId(post)}, function(err, post) {
+            if (err) return console.log('Like ERROR: ', err);
+            if (!post) return;
+            io.emit('likeUpdate', 'n', post._id.toString(), post.like);
+          });
+        });
+      } else if (type == 'p') {
+        Image.findOneAndUpdate({_id: mongoose.Types.ObjectId(post)}, {$pull: {like: socket.request.session.passport.user}}, function(err) {
+          if (err) return console.log('Like ERROR: ', err);
+          if (!post) return;
+          Image.findOne({_id: mongoose.Types.ObjectId(post)}, function(err, post) {
+            if (err) return console.log('Like ERROR: ', err);
+            if (!post) return;
+            io.emit('likeUpdate', 'p', post._id.toString(), post.like);
+          });
+        });
+      }
+    });
+    socket.on('likeReq', function(type, post) {
+      if (type == 'n') {
+        Notice.findOne({_id: mongoose.Types.ObjectId(post)}, function(err, post) {
+          if (err) return console.log('Like ERROR: ', err);
+          if (!post) return;
+          socket.emit('likeUpdate', 'n', post._id.toString(), post.like);
+        });
+      } else if (type == 'p') {
+        Image.findOne({_id: mongoose.Types.ObjectId(post)}, function(err, post) {
+          if (err) return console.log('Like ERROR: ', err);
+          if (!post) return;
+          socket.emit('likeUpdate', 'p', post._id.toString(), post.like);
+        });
+      }
+    });
+    socket.on('photoReq', function() {
+      Image.find({}, function(err) {
+        if (err) return console.log('Attachment ERROR: ', err);
+      }).sort('-createdAt').exec(function (err, imgs) {
+        if (err) return console.log('Attachment ERROR: ', err);
+        socket.emit('photoUpdate', imgs);
+      });
+    })
+  });
 
 app.get('/', function(req, res) {
+  req.session.returnTo = req.originalUrl;
   Notice.find({}, function(err) {
     if (err) return res.status(520).render('error', {errorMessage: err});
   }).populate('author').sort('-createdAt').exec(function(err, tNotice) {
@@ -130,14 +220,19 @@ app.get('/', function(req, res) {
     }).populate('author').sort('-createdAt').exec(function(err, imgs) {
       MainInfo.findOne({name: 'main'}, function(err, main) {
         if (err) return res.status(520).render('error', {errorMessage: err});
-        res.render('main', {user: req.user, notice: tNotice[0], notices: tNotice.slice(0, 4), imgs: imgs.slice(0, 4), main: main});
+        var date = new Date();
+        date = ((date.getMonth() + 1 < 10) ? ('0' + (date.getMonth() + 1)) : (date.getMonth())) + '/' + (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
+        Daily.findOne({author: req.user, date: date}, function(err, daily) {
+          if (err) return res.status(520).render('error', {errorMessage: err});
+          res.render('main', {user: req.user, notice: tNotice[0], notices: tNotice.slice(0, 4), imgs: imgs.slice(0, 4), main: main, daily: daily ? false : true});
+        });
       });
     });
   });
 });
 
 app.get('/login', function(req, res) {
-  if (req.user) res.render('/loginDone');
+  if (req.user) return res.redirect('/loginDone');
   res.render('login/login', {
     name: req.flash('name')[0],
     loginError: req.flash('loginError')[0]
@@ -167,8 +262,10 @@ app.get('/loginDone', function(req, res) {
 });
 
 app.get('/logout', function(req, res) {
+  var destination = req.session.returnTo || '/';
+  delete req.session.returnTo;
   req.logout();
-  res.redirect('/');
+  res.redirect(destination);
 });
 
 app.get('/users/new', function(req, res) {
@@ -349,7 +446,7 @@ app.post('/notice/:id', isLoggedin, function(req, res) {
     else if (!notice) return res.render('error', {errorMessage: '400 Bad Request'});
     else res.redirect('/notice');
   });
-})
+});
 
 app.get('/notice/:id/edit', isLoggedin, function(req, res) {
   Notice.findOne({_id: req.params.id}, function(err, notice) {
@@ -370,23 +467,29 @@ app.get('/photo', function(req, res) {
 });
 
 app.get('/photo/new', isLoggedin, function(req, res) {
-  req.session.returnTo = req.originalUrl;
   res.render('photo/new', {user: req.user});
 });
 
 app.post('/photo', isLoggedin, upload.single('fileInput'), function(req, res) {
   var newItem = new Image();
   sharp(req.file.path).resize(1024, 1024, { widthoutEnlargement: true, fit: 'inside'}).toFile(req.file.path + 'edited', function(err) {
-    if (err) return console.log('IMG ERROR: ', tErr);
+    if (err) return console.log('IMG ERROR: ', err);
     newItem.img.data = fs.readFileSync(req.file.path + 'edited');
     newItem.img.contentType = req.file.mimetype;
     newItem.author = req.user._id;
     newItem.save();
+    Image.find({}, function(err) {
+      if (err) return console.log('IMG ERROR: ', err);
+    }).sort('-createdAt').exec(function(err, img) {
+      if (err) return console.log('IMG ERROR: ', err);
+      io.emit('photoUpdate', img);
+    });
     res.redirect('/photo');
   });
 });
 
 app.get('/photo/:id', function(req, res) {
+  req.session.returnTo = req.originalUrl;
   Image.findOneAndUpdate({_id: req.params.id}, {$inc: {views: 1}}, function(err) {
     if (err) return res.status(520).render('error', {errorMessage: err});
   });
@@ -416,10 +519,83 @@ app.get('/photo/:id/delete', isLoggedin, function(req, res) {
 
 app.post('/change', isLoggedin, isAdmin, function(req, res) {
   MainInfo.findOneAndUpdate({name: 'main'}, req.body.main, function(err, main) {
-    if (err) return console.log('Title ERROR: ' + err);
-    console.log(main);
+    if (err) return console.log('Title ERROR: ', err);
+    res.redirect('/');
   });
-  res.redirect('/');
+});
+
+app.get('/daily', isLoggedin, function(req, res) {
+  req.session.returnTo = req.originalUrl;
+  Daily.find({author: req.user}, function(err, posts) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+  }).sort('-createdAt').exec(function(err, posts) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    res.render('daily/posts', {posts: posts, notice: null, user: req.user});
+  });
+});
+
+app.get('/daily/new', isLoggedin, function(req, res) {
+  var formData = '';
+  if (req.session.previousBody) {
+    formData = req.session.previousBody;
+    delete req.session.previousBody;
+  }
+  var date = new Date();
+  date = ((date.getMonth() + 1 < 10) ? ('0' + (date.getMonth() + 1)) : (date.getMonth())) + '/' + (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
+  Daily.findOne({author: req.user, date: date}, function(err, post) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    if (!post) res.render('daily/new', {user: req.user, formData: formData});
+    else res.status(400).render('error', {errorMessage: '400 Bad Request'});
+  });
+});
+
+app.post('/daily', function(req, res) {
+  if (!req.user) {
+    req.session.returnTo = '/daily/new';
+    req.session.previousBody = req.body.daily.body;
+    res.redirect('/login');
+  } else {
+    var nPost = req.body.daily;
+    nPost.author = req.user._id;
+    var date = new Date();
+    nPost.date = ((date.getMonth() + 1 < 10) ? ('0' + (date.getMonth() + 1)) : (date.getMonth())) + '/' + (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
+    Daily.create(nPost, function(err, notice) {
+      if (err) return res.status(520).render('error', {errorMessage: err});
+      res.redirect('/daily');
+    });
+  }
+});
+
+app.get('/daily/:id', isLoggedin, function(req, res) {
+  req.session.returnTo = req.originalUrl;
+  var date = new Date();
+  date = ((date.getMonth() + 1 < 10) ? ('0' + (date.getMonth() + 1)) : (date.getMonth())) + '/' + (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
+  Daily.findOne({author: req.user, _id: req.params.id}, function(err) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+  }).exec(function(err, post) {
+    res.render('daily/post', {user: req.user, post: post, notice: null, edit: date === post.date ? true : false});
+  });
+});
+
+app.get('/daily/:id/edit', isLoggedin, function(req, res) {
+  var date = new Date();
+  date = ((date.getMonth() + 1 < 10) ? ('0' + (date.getMonth() + 1)) : (date.getMonth())) + '/' + (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
+  Daily.findOne({author: req.user, _id: req.params.id, date: date}, function(err, post) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    else if (!post) return res.status(400).render('error', {errorMessage: '400 Bad Request'});
+    else if (post.author._id.toString() != req.user._id.toString()) return res.status(403).render('error', {errorMessage: '403 Forbidden'});
+    else res.render('daily/edit', {user: req.user, post: post});
+  });
+});
+
+app.post('/daily/:id', isLoggedin, function(req, res) {
+  var date = new Date();
+  date = ((date.getMonth() + 1 < 10) ? ('0' + (date.getMonth() + 1)) : (date.getMonth())) + '/' + (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
+  Daily.findOneAndUpdate({_id: req.params.id, author: req.user, date: date}, req.body.daily, function(err, post) {
+    if (err) return res.status(520).render('error', {errorMessage: err});
+    else if (!post) return res.status(400).render('error', {errorMessage: '400 Bad Request'});
+    else res.redirect('/daily');
+  });
 });
 
 http.listen(process.env.PORT || 3000, function() {
